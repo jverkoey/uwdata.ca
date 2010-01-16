@@ -15,7 +15,7 @@ class V1_Controller extends Controller {
 	const ALLOW_PRODUCTION = FALSE;
 
 	public function faculty($primary_action, $param1 = null) {
-		$profiler = new Profiler;
+		//$profiler = new Profiler;
 
     if ($param1) {
       list($action, $returntype) = $this->action_info($param1);
@@ -61,6 +61,61 @@ class V1_Controller extends Controller {
       }
 
       $this->echo_formatted_data($faculty, $returntype);
+    }
+	}
+
+	public function course($param1, $param2 = null, $param3 = null) {
+		//$profiler = new Profiler;
+
+    if ($param3) {
+      list($param3, $returntype) = $this->action_info($param3);
+    } if ($param2) {
+      list($param2, $returntype) = $this->action_info($param2);
+    } else {
+      list($param1, $returntype) = $this->action_info($param1);
+    }
+
+    if (!$param1) {
+      throw new Kohana_404_Exception('Unknown API action');
+    }
+
+	  $db = Database::instance();
+
+    if (eregi('^[a-z]+$', $param1) && eregi('^[0-9]+[a-z]*$', $param2)) {
+      $result = $db->
+        from('courses')->
+        select()->
+        like('faculty_acronym', $param1)->
+        where('course_number', $param2)->
+        get();
+
+      if (count($result)) {
+        foreach ($result as $row) {
+          $course = array('course' => $row);
+        }
+      } else {
+        $course = array('error' => array('text' => "Unknown course"));
+      }
+
+      $this->echo_formatted_data($course, $returntype);
+
+    } else if (eregi('^[0-9]+$', $param1)) {
+      $result = $db->
+        from('courses')->
+        select()->
+        where('cid', $param1)->
+        get();
+
+      if (count($result)) {
+        foreach ($result as $row) {
+          $course = array('course' => $row);
+        }
+      } else {
+        $course = array('error' => array('text' => "Unknown course"));
+      }
+
+      $this->echo_formatted_data($course, $returntype);
+
     }
 	}
 
