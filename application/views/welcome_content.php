@@ -1,4 +1,7 @@
 <?php defined('SYSPATH') OR die('No direct access allowed.'); ?>
-<span class="big-emphasis">At last!</span> The University of Waterloo data API is live.
+<span class="big-emphasis">Stop scraping!</span> The University of Waterloo data API is now live
+and <strong>you are in control</strong>.
 
-Stop scraping and <strong>start building</strong>.
+<center><span class="big-emphasis">So what can this API do?</span></center>
+
+
