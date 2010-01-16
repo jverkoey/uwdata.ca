@@ -4,3 +4,4 @@ api/application/logs
 api/application/cache
 api/system
 api/modules
+shovel/data

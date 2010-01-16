@@ -14,6 +14,17 @@ class V1_Controller extends Controller {
 	// See http://docs.kohanaphp.com/installation/deployment for more details.
 	const ALLOW_PRODUCTION = FALSE;
 
+  private function get_db() {
+    $cal_year = $this->input->get('cal', '20092010');
+    if (!ereg('^[0-9]+$', $cal_year)) {
+      return null;
+    }
+
+	  $db = Database::instance('uwdata'.$cal_year);
+
+    return $db;
+  }
+
 	public function faculty($primary_action, $param1 = null) {
 		//$profiler = new Profiler;
 
@@ -27,7 +38,7 @@ class V1_Controller extends Controller {
       throw new Kohana_404_Exception('Unknown API action');
     }
 
-	  $db = Database::instance();
+    $db = $this->get_db();
 
     if ($action == 'list' && $param1 == null) {
       $result = $db->from('faculties')->select(array('acronym', 'name'))->get();
@@ -79,7 +90,7 @@ class V1_Controller extends Controller {
       throw new Kohana_404_Exception('Unknown API action');
     }
 
-	  $db = Database::instance();
+    $db = $this->get_db();
 
     if (eregi('^[a-z]+$', $param1) && eregi('^[0-9]+[a-z]*$', $param2)) {
       $result = $db->

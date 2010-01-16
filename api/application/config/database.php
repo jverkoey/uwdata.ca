@@ -27,15 +27,14 @@ $config['default'] = array
 (
 	'benchmark'     => TRUE,
 	'persistent'    => FALSE,
-	'connection'    => array
-	(
+	'connection'    => array(
 		'type'     => 'mysql',
 		'user'     => 'uwdataapi',
 		'pass'     => 'UwD4tA4p1123!',
 		'host'     => 'localhost',
 		'port'     => FALSE,
-		'socket'   => FALSE,
-		'database' => 'uwdata20092010'
+		'socket'   => FALSE
+		//'database' => 'uwdata20092010'
 	),
 	'character_set' => 'utf8',
 	'table_prefix'  => '',
@@ -43,3 +42,20 @@ $config['default'] = array
 	'cache'         => TRUE,
 	'escape'        => TRUE
 );
+
+$tables = array(
+  '20092010',
+  '20082009',
+  '20072008',
+  '20062007',
+  '20052006',
+  '20042005',
+  '20032004',
+  '20022003',
+  '20012002',
+  //'20002001',
+);
+foreach ($tables as $years) {
+  $config['uwdata'.$years] = $config['default'];
+  $config['uwdata'.$years]['connection']['database'] = 'uwdata'.$years;
+}
