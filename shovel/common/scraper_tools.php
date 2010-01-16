@@ -74,7 +74,7 @@ function get_redirect_url($url){
 	$response = '';
 	while(!feof($sock)) $response .= fread($sock, 8192);
 	fclose($sock);
- 
+
 	if (preg_match('/^Location: (.+?)$/m', $response, $matches)){
 		if ( substr($matches[1], 0, 1) == "/" )
 			return $url_parts['scheme'] . "://" . $url_parts['host'] . trim($matches[1]);
@@ -82,7 +82,7 @@ function get_redirect_url($url){
 			return trim($matches[1]);
  
 	} else {
-		return false;
+		return $url;
 	}
  
 }
