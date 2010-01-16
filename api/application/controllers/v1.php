@@ -20,9 +20,7 @@ class V1_Controller extends Controller {
     $action_info = $this->action_info($action);
 
     if (!$action_info) {
-      // Bail out.
-      // TODO: This should return a proper error.
-      exit;
+      throw new Kohana_404_Exception('Unknown API action');
     }
 
     if ($action_info[0] == 'list') {
@@ -37,7 +35,7 @@ class V1_Controller extends Controller {
       $this->echo_formatted_data($faculties, $action_info[1], 'faculties', 'faculty');
 
     } else {
-      // TODO: 404 fail
+      throw new Kohana_404_Exception('Unknown API action');
     }
 	}
 
@@ -70,6 +68,11 @@ class V1_Controller extends Controller {
         }
 
     		echo $xml->asXML();
+        break;
+      }
+
+      default: {
+        throw new Kohana_404_Exception('Unknown return type');
         break;
       }
     }
