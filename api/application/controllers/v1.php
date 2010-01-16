@@ -17,25 +17,33 @@ class V1_Controller extends Controller {
 	public function faculty($action) {
 		$profiler = new Profiler;
 
-    $action_info = $this->action_info($action);
+    list($action, $returntype) = $this->action_info($action);
 
-    if (!$action_info) {
+    if (!$action) {
       throw new Kohana_404_Exception('Unknown API action');
     }
 
-    if ($action_info[0] == 'list') {
+    if ($action == 'list') {
   	  $db = Database::instance();
-      $result = $db->query('SELECT acronym, name FROM faculties');
+      $result = $db->from('faculties')->select(array('acronym', 'name'))->get();
 
       $faculties = array();
       foreach ($result as $row) {
         $faculties []= $row;
       }
 
-      $this->echo_formatted_data($faculties, $action_info[1], 'faculties', 'faculty');
+      $this->echo_formatted_data($faculties, $returntype, 'faculties', 'faculty');
 
     } else {
-      throw new Kohana_404_Exception('Unknown API action');
+  	  $db = Database::instance();
+  	  $result = $db->from('faculties')->select(array('acronym', 'name'))->like('acronym', $action)->limit(1)->get();
+
+      $faculty = array();
+      foreach ($result as $row) {
+        $faculty = $row;
+      }
+
+      $this->echo_formatted_data($faculty, $returntype, null, 'faculty');
     }
 	}
 
@@ -63,7 +71,7 @@ class V1_Controller extends Controller {
           }
         } else {
     			foreach ($data as $key => $value) {
-    				$row->addChild($key, htmlentities($value));
+    				$xml->$singletypename->addChild($key, htmlentities($value));
     			}
         }
 
@@ -84,11 +92,10 @@ class V1_Controller extends Controller {
       return null;
     }
 
-    $action = $parts[0];
+    $parts[0] = strtolower($parts[0]);
     if (!isset($parts[1])) {
       return null;
     }
-    $datatype = $parts[1];
     return $parts;
   }
 
