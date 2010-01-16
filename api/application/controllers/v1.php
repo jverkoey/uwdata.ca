@@ -14,40 +14,57 @@ class V1_Controller extends Controller {
 	// See http://docs.kohanaphp.com/installation/deployment for more details.
 	const ALLOW_PRODUCTION = FALSE;
 
-	public function faculty($action) {
+	public function faculty($primary_action, $param1 = null) {
 		$profiler = new Profiler;
 
-    list($action, $returntype) = $this->action_info($action);
+    if ($param1) {
+      list($action, $returntype) = $this->action_info($param1);
+    } else {
+      list($action, $returntype) = $this->action_info($primary_action);
+    }
 
     if (!$action) {
       throw new Kohana_404_Exception('Unknown API action');
     }
 
-    if ($action == 'list') {
-  	  $db = Database::instance();
+	  $db = Database::instance();
+
+    if ($action == 'list' && $param1 == null) {
       $result = $db->from('faculties')->select(array('acronym', 'name'))->get();
 
       $faculties = array();
       foreach ($result as $row) {
-        $faculties []= $row;
+        $faculties []= array('faculty' => $row);
       }
 
-      $this->echo_formatted_data($faculties, $returntype, 'faculties', 'faculty');
+      $this->echo_formatted_data(array('faculties' => $faculties), $returntype);
+
+    } else if ($primary_action == 'courses') {
+      $result = $db->from('courses')->select()->like('faculty_acronym', $action)->get();
+
+      $courses = array();
+      foreach ($result as $row) {
+        $courses []= array('course' => $row);
+      }
+
+      $this->echo_formatted_data(array('courses' => $courses), $returntype);
 
     } else {
-  	  $db = Database::instance();
   	  $result = $db->from('faculties')->select(array('acronym', 'name'))->like('acronym', $action)->limit(1)->get();
 
-      $faculty = array();
-      foreach ($result as $row) {
-        $faculty = $row;
+      if (count($result)) {
+        foreach ($result as $row) {
+          $faculty = array('faculty' => $row);
+        }
+      } else {
+        $faculty = array('error' => array('text' => "Unknown faculty"));
       }
 
-      $this->echo_formatted_data($faculty, $returntype, null, 'faculty');
+      $this->echo_formatted_data($faculty, $returntype);
     }
 	}
 
-  private function echo_formatted_data($data, $datatype, $multitypename = 'objects', $singletypename = 'object') {
+  private function echo_formatted_data($data, $datatype) {
     switch (strtolower($datatype)) {
       case 'json': {
         echo json_encode($data);
@@ -55,27 +72,30 @@ class V1_Controller extends Controller {
       }
 
       case 'xml': {
-        if (is_array($data)) {
-    		  $xml = '<?xml version="1.0" encoding="UTF-8"?><result><'.$multitypename.' type="array"></'.$multitypename.'></result>';
-    		} else {
-    		  $xml = '<?xml version="1.0" encoding="UTF-8"?><result><'.$singletypename.'></'.$singletypename.'></result>';
-    		}
+  		  $xml = '<?xml version="1.0" encoding="UTF-8"?><result></result>';
     		$xml = simplexml_load_string($xml);
 
-        if (is_array($data)) {
-      		foreach ($data as $item) {
-      			$row = $xml->$multitypename->addChild($singletypename);
-      			foreach ($item as $key => $value) {
-      				$row->addChild($key, htmlentities($value));
-      			}
+        foreach ($data as $name => $objectdata) {
+          $object = $xml->addChild($name);
+      		foreach ($objectdata as $key => $item) {
+      		  if (is_array($item)) {
+        		  foreach ($item as $itemname => $itemdata) {
+          			$row = $object->addChild($itemname);
+          			foreach ($itemdata as $key => $value) {
+          				$row->addChild($key, htmlentities($value));
+          			}
+          		}
+          	} else {
+          	  $object->addChild($key, htmlentities($item));
+          	}
           }
-        } else {
-    			foreach ($data as $key => $value) {
-    				$xml->$singletypename->addChild($key, htmlentities($value));
-    			}
         }
 
-    		echo $xml->asXML();
+        $dom = new DOMDocument('1.0');
+        $dom->preserveWhiteSpace = false;
+        $dom->formatOutput = true;
+        $dom->loadXML($xml->asXML());
+        echo $dom->saveXML();
         break;
       }
 
