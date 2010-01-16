@@ -34,17 +34,42 @@ class V1_Controller extends Controller {
         $faculties []= $row;
       }
 
-      $this->echo_formatted_data($faculties, $action_info[1]);
+      $this->echo_formatted_data($faculties, $action_info[1], 'faculties', 'faculty');
 
     } else {
       // TODO: 404 fail
     }
 	}
 
-  private function echo_formatted_data($data, $datatype) {
+  private function echo_formatted_data($data, $datatype, $multitypename = 'objects', $singletypename = 'object') {
     switch (strtolower($datatype)) {
       case 'json': {
         echo json_encode($data);
+        break;
+      }
+
+      case 'xml': {
+        if (is_array($data)) {
+    		  $xml = '<?xml version="1.0" encoding="UTF-8"?><result><'.$multitypename.' type="array"></'.$multitypename.'></result>';
+    		} else {
+    		  $xml = '<?xml version="1.0" encoding="UTF-8"?><result><'.$singletypename.'></'.$singletypename.'></result>';
+    		}
+    		$xml = simplexml_load_string($xml);
+
+        if (is_array($data)) {
+      		foreach ($data as $item) {
+      			$row = $xml->$multitypename->addChild($singletypename);
+      			foreach ($item as $key => $value) {
+      				$row->addChild($key, htmlentities($value));
+      			}
+          }
+        } else {
+    			foreach ($data as $key => $value) {
+    				$row->addChild($key, htmlentities($value));
+    			}
+        }
+
+    		echo $xml->asXML();
         break;
       }
     }
