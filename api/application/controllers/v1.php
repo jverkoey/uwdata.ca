@@ -155,6 +155,8 @@ class V1_Controller extends Controller {
 
       $this->echo_formatted_data($course, $returntype);
 
+    } else {
+      throw new Kohana_404_Exception();
     }
 	}
 
@@ -289,6 +291,8 @@ class V1_Controller extends Controller {
 
         $this->echo_formatted_data($result, $returntype);
       }
+    } else {
+      throw new Kohana_404_Exception();
     }
 	}
 
