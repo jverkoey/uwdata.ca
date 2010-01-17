@@ -29,7 +29,7 @@ while ($row = mysql_fetch_assoc($results)) {
   }
   $sql_params = array();
   foreach ($params as $key => $value) {
-    $sql_params []= $key.' LIKE "%'.$value.'%"';
+    $sql_params []= $key.' LIKE "'.$value.'"';
   }
   $search_results = $db->query('SELECT * FROM instructors WHERE '.implode(' AND ', $sql_params).';');
   
@@ -39,10 +39,19 @@ while ($row = mysql_fetch_assoc($results)) {
   }
   if (count($search_rows) > 1) {
     echo "Too many matches, unsure of which prof to use!\n";
+    print_r($params);
     continue;
   }
   if (count($search_rows) < 1) {
-    continue;
+    // No matches, add this to the db.
+    $db->query('INSERT INTO instructors(first_name, last_name) VALUES("'.$params['first_name'].'", "'.$params['last_name'].'");');
+
+    $search_results = $db->query('SELECT * FROM instructors WHERE '.implode(' AND ', $sql_params).';');
+
+    $search_rows = array();
+    while ($search_row = mysql_fetch_assoc($search_results)) {
+      $search_rows []= $search_row;
+    }
   }
 
   // One match!

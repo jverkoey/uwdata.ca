@@ -59,3 +59,7 @@ foreach ($tables as $years) {
   $config['uwdata'.$years] = $config['default'];
   $config['uwdata'.$years]['connection']['database'] = 'uwdata'.$years;
 }
+
+$config['uwdata_schedule'] = $config['default'];
+$config['uwdata_schedule']['connection']['database'] = 'uwdata_schedule';
+

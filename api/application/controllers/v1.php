@@ -158,6 +158,50 @@ class V1_Controller extends Controller {
     }
 	}
 
+	public function prof($param1, $param2 = null, $param3 = null) {
+		//$profiler = new Profiler;
+
+    if ($param3) {
+      list($param3, $returntype) = $this->action_info($param3);
+    } else if ($param2) {
+      list($param2, $returntype) = $this->action_info($param2);
+    } else {
+      list($param1, $returntype) = $this->action_info($param1);
+    }
+
+    if (!$param1) {
+      throw new Kohana_404_Exception('Unknown API action');
+    }
+
+    $db = Database::instance('uwdata_schedule');
+
+    if ($param1 == 'search') {
+      $query = $this->input->get('q');
+      if ($query) {
+        if (eregi('^[a-z \-]+$', $query)) {
+          $results = $db->
+            query('SELECT * FROM instructors WHERE MATCH (first_name, last_name) AGAINST ("'.mysql_escape_string($query).'") LIMIT 1;');
+
+          if (count($results)) {
+            foreach ($results as $row) {
+              $result []= array('course' => $row);
+            }
+            $result = array('courses' => $result);
+          } else {
+            $result = array('error' => array('text' => "No instructors found"));
+          }
+        } else {
+          $result = array('error' => array('text' => "Illegal characters found in the query"));
+        }
+
+      } else {
+        $result = array('error' => array('text' => "Please provide a ?q=<query> expression."));
+      }
+      $this->echo_formatted_data($result, $returntype);
+
+    }
+	}
+
   private function echo_formatted_data($data, $datatype) {
     switch (strtolower($datatype)) {
       case 'json': {
