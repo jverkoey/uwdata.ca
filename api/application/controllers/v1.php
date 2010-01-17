@@ -159,7 +159,7 @@ class V1_Controller extends Controller {
 	}
 
 	public function prof($param1, $param2 = null, $param3 = null) {
-		//$profiler = new Profiler;
+		$profiler = new Profiler;
 
     if ($param3) {
       list($param3, $returntype) = $this->action_info($param3);
@@ -174,6 +174,26 @@ class V1_Controller extends Controller {
     }
 
     $db = Database::instance('uwdata_schedule');
+
+    $term = $this->input->get('term');
+    if (!$term) {
+      $results = $db->
+        from('terms')->
+        select('MAX(term_id) term_id')->
+        get();
+
+      if (count($results)) {
+        foreach ($results as $row) {
+          $term = $row->term_id;
+          break;
+        }
+      }
+    }
+
+    if (!ereg('^[0-9]+$', $term)) {
+      return null;
+    }
+
 
     if ($param1 == 'search') {
       $query = $this->input->get('q');
@@ -199,8 +219,91 @@ class V1_Controller extends Controller {
       }
       $this->echo_formatted_data($result, $returntype);
 
+    } else if (ereg('^[0-9]+$', $param1) && $param1 != 0) {
+      if ($param2 == 'classes') {
+        $results = $db->
+          from('classes')->
+          select()->
+          where('instructor_id', $param1)->
+          where('term', $term)->
+          limit(10)->
+          get();
+
+        if (count($results)) {
+          $result = array();
+          $needed_reserves = array();
+          foreach ($results as $row) {
+            $result []= array('timeslot' => $row);
+
+            $reserve_key = md5($row->class_number).md5($row->term);
+            $needed_reserves[$reserve_key]= array(
+              'class_number' => $row->class_number,
+              'term' => $row->term,
+              'index' => count($result)-1
+            );
+          }
+
+          $db->
+            from('reserves')->
+            select();
+          foreach ($needed_reserves as $key => $reserve) {
+            $db->
+              orwhere('class_number', $reserve['class_number'])->
+              where('term', $reserve['term']);
+          }
+          $results = $db->get();
+          foreach ($results as $row) {
+            $reserve_key = md5($row->class_number).md5($row->term);
+            $index = $needed_reserves[$reserve_key]['index'];
+            if (!isset($result[$index]['timeslot']->reserves)) {
+              $result[$index]['timeslot']->reserves = array('reserves' => array());
+            }
+            unset($row->class_number);
+            unset($row->term);
+            $result[$index]['timeslot']->reserves['reserves'] []= array('reserve' => $row);
+          }
+          $result = array('timeslots' => $result);
+        } else {
+          $result = array('error' => array('text' => "No classes currently being held by this professor"));
+        }
+
+        $this->echo_formatted_data($result, $returntype);
+
+      } else if (!$param2) {
+        $results = $db->
+          from('instructors')->
+          select()->
+          where('id', $param1)->
+          limit(1)->
+          get();
+
+        if (count($results)) {
+          $result = array();
+          foreach ($results as $row) {
+            $result = array('professor' => $row);
+          }
+
+        } else {
+          $result = array('error' => array('text' => "No professor exists with this id"));
+        }
+
+        $this->echo_formatted_data($result, $returntype);
+      }
     }
 	}
+
+  private function create_xml_object(&$xml, $data) {
+    foreach ($data as $name => $objectdata) {
+      $object = $xml->addChild($name);
+  		foreach ($objectdata as $key => $item) {
+  		  if (is_array($item)) {
+  		    $this->create_xml_object($object, $item);
+      	} else {
+      	  $object->addChild($key, htmlentities($item));
+      	}
+      }
+    }
+  }
 
   private function echo_formatted_data($data, $datatype) {
     switch (strtolower($datatype)) {
@@ -213,21 +316,7 @@ class V1_Controller extends Controller {
   		  $xml = '<?xml version="1.0" encoding="UTF-8"?><result></result>';
     		$xml = simplexml_load_string($xml);
 
-        foreach ($data as $name => $objectdata) {
-          $object = $xml->addChild($name);
-      		foreach ($objectdata as $key => $item) {
-      		  if (is_array($item)) {
-        		  foreach ($item as $itemname => $itemdata) {
-          			$row = $object->addChild($itemname);
-          			foreach ($itemdata as $key => $value) {
-          				$row->addChild($key, htmlentities($value));
-          			}
-          		}
-          	} else {
-          	  $object->addChild($key, htmlentities($item));
-          	}
-          }
-        }
+        $this->create_xml_object($xml, $data);
 
         $dom = new DOMDocument('1.0');
         $dom->preserveWhiteSpace = false;
