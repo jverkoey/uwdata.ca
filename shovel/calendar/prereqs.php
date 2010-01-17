@@ -6,6 +6,9 @@ include_once COMMON_PATH.'scraper_tools.php';
 include_once COMMON_PATH.'simple_html_dom.php';
 include_once COMMON_PATH.'Database.class.php';
 
+define('WORD_TYPE_FACULTY', 1);
+define('WORD_TYPE_CNUM', 2);
+
 if( sizeof($argv) < 2 ) {
   $calendar_years = '20092010';
 } else {
@@ -33,7 +36,9 @@ $db->connect();
 
 // Create the schemas.
 foreach (explode(';', trim($schema, ';')) as $query) {
-  $db->query($query);
+  if (trim($query)) {
+    $db->query($query);
+  }
 }
 
 function get_cid($acr, $num) {
@@ -81,6 +86,7 @@ function parse_part($part) {
   $last_number = null;
   $last_numerical_count = null;
   $is_pairing = false;
+  $last_word_type = 0;
 
   $numbers = array(
     'one',
@@ -124,6 +130,7 @@ function parse_part($part) {
           }
         }
 
+        $new_word_type = 0;
         if (strtolower($word_buffer) == 'or') {
           if ($last_operand && $group_operator != strtolower($word_buffer)) {
             // We've already added the last value for the previous operator, so let's
@@ -141,12 +148,13 @@ function parse_part($part) {
 
         } else if (ereg('^[A-Z]+$', $word_buffer)) {
           //echo 'found a faculty: '.$word_buffer."\n";
-          if ($is_pairing) {
+          if ($is_pairing && $last_word_type == WORD_TYPE_FACULTY) {
             $last_faculty = array_merge((array)$last_faculty, (array)$word_buffer);
             $is_pairing = false;
           } else {
             $last_faculty = $word_buffer;
           }
+          $new_word_type = WORD_TYPE_FACULTY;
 
         } else if (ereg('^[0-9]{2,}[A-Z]?$', $word_buffer)) {
           foreach ((array)$last_faculty as $faculty) {
@@ -167,6 +175,8 @@ function parse_part($part) {
             $is_pairing = false;
           }
 
+          $new_word_type = WORD_TYPE_CNUM;
+
         } else if (in_array(strtolower($word_buffer), $numbers)) {
           $value = array_search(strtolower($word_buffer), $numbers) + 1;
           $last_number = $value;
@@ -180,6 +190,8 @@ function parse_part($part) {
           //echo 'found a word: '.$word_buffer."\n";
 
         }
+        
+        $last_word_type = $new_word_type;
 
         if ($letter == '/') {
           //echo "found a pairing operator\n";
@@ -228,9 +240,6 @@ function parse_reqs($reqs) {
 
   return $operators;
 }
-
-//print_r(parse_reqs('Three of AFM 371/ACC 372, ACTSC 372, ACTSC 391/AFM 372 or ECON 372'));
-
 
 $results = $db->query('SELECT cid, prereq_desc, title, faculty_acronym, course_number FROM courses;');
 while ($row = mysql_fetch_assoc($results)) {

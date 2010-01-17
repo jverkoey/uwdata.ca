@@ -80,7 +80,7 @@ class V1_Controller extends Controller {
 
     if ($param3) {
       list($param3, $returntype) = $this->action_info($param3);
-    } if ($param2) {
+    } else if ($param2) {
       list($param2, $returntype) = $this->action_info($param2);
     } else {
       list($param1, $returntype) = $this->action_info($param1);
@@ -93,22 +93,50 @@ class V1_Controller extends Controller {
     $db = $this->get_db();
 
     if (eregi('^[a-z]+$', $param1) && eregi('^[0-9]+[a-z]*$', $param2)) {
-      $result = $db->
-        from('courses')->
-        select()->
-        like('faculty_acronym', $param1)->
-        where('course_number', $param2)->
-        get();
+      if ($param3 == 'prereqs') {
+        $result = $db->
+          from('courses')->
+          select(array(
+            'prereqs',
+            'prereq_desc'
+          ))->
+          like('faculty_acronym', $param1)->
+          where('course_number', $param2)->
+          get();
 
-      if (count($result)) {
-        foreach ($result as $row) {
-          $course = array('course' => $row);
+        if (count($result)) {
+          foreach ($result as $row) {
+            $course = $row;
+          }
+          if ($returntype == 'json') {
+            $prereqs = json_decode($course->prereqs, TRUE);
+          } else {
+            $prereqs = array('prereqs' => array('json' => $course->prereqs));
+          }
+        } else {
+          $prereqs = array('error' => array('text' => "Unknown course"));
         }
-      } else {
-        $course = array('error' => array('text' => "Unknown course"));
-      }
 
-      $this->echo_formatted_data($course, $returntype);
+        $this->echo_formatted_data($prereqs, $returntype);
+
+      } else {
+        $result = $db->
+          from('courses')->
+          select()->
+          like('faculty_acronym', $param1)->
+          where('course_number', $param2)->
+          get();
+
+        if (count($result)) {
+          foreach ($result as $row) {
+            $course = array('course' => $row);
+          }
+        } else {
+          $course = array('error' => array('text' => "Unknown course"));
+        }
+
+        $this->echo_formatted_data($course, $returntype);
+      }
 
     } else if (eregi('^[0-9]+$', $param1)) {
       $result = $db->
