@@ -175,23 +175,19 @@ class V1_Controller extends Controller {
    * endpoint: v1/faculty/list.<return type>
    */
   private function faculty_list($return_type) {
-    Benchmark::start('faculty_list');
-
     $db = $this->get_db();
 
-    $result = $db->
+    $results = $db->
       from('faculties')->
       select(array('acronym', 'name'))->
       get();
 
-    $faculties = array();
-    foreach ($result as $row) {
-      $faculties []= array('faculty' => $row);
+    $result = array();
+    foreach ($results as $row) {
+      $result []= array('faculty' => $row);
     }
 
-    Benchmark::stop('faculty_list');
-
-    $this->echo_formatted_data(array('faculties' => $faculties), $return_type);
+    $this->echo_formatted_data(array('faculties' => $result), $return_type);
   }
 
   /**
