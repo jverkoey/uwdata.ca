@@ -101,172 +101,50 @@ class V1_Controller extends Controller {
     }
 	}
 
+  /**
+   * Possible endpoints:
+   *   v1/prof/<instructor id>.<return type>
+   *   - Information about the given professor.
+   *     prof_by_id
+   *   v1/prof/<instructor id>/timeslots.<return type>
+   *   - All of the timeslots the given professor is running.
+   *     prof_timeslots
+   *   v1/prof/search.<return type>?q=<query>
+   *   - Search the professor list by first and last name.
+   *     prof_search
+   */
 	public function prof($param1, $param2 = null, $param3 = null) {
 	  $return_type = $this->init_action($param1, $param2, $param3);
 
-    $db = Database::instance('uwdata_schedule');
-
-    $term = $this->input->get('term');
-    if (!$term) {
-      $results = $db->
-        from('terms')->
-        select('MAX(term_id) term_id')->
-        get();
-
-      if (count($results)) {
-        foreach ($results as $row) {
-          $term = $row->term_id;
-          break;
-        }
-      }
-    }
-
-    if (!ereg('^[0-9]+$', $term)) {
-      return null;
-    }
-
-
-    if ($param1 == 'search') {
-      $query = $this->input->get('q');
-      if ($query) {
-        if (eregi('^[a-z \-]+$', $query)) {
-          $results = $db->
-            query('SELECT * FROM instructors WHERE MATCH (first_name, last_name) AGAINST ("'.mysql_escape_string($query).'") LIMIT 1;');
-
-          if (count($results)) {
-            foreach ($results as $row) {
-              $result []= array('course' => $row);
-            }
-            $result = array('courses' => $result);
-          } else {
-            $result = array('error' => array('text' => "No instructors found"));
-          }
-        } else {
-          $result = array('error' => array('text' => "Illegal characters found in the query"));
-        }
-
-      } else {
-        $result = array('error' => array('text' => "Please provide a ?q=<query> expression."));
-      }
-      $this->echo_formatted_data($result, $return_type);
-
-    } else if (ereg('^[0-9]+$', $param1) && $param1 != 0) {
-      if ($param2 == 'classes') {
-        $results = $db->
-          from('classes')->
-          select()->
-          where('instructor_id', $param1)->
-          where('term', $term)->
-          limit(10)->
-          get();
-
-        if (count($results)) {
-          $result = array();
-          $needed_reserves = array();
-          foreach ($results as $row) {
-            $result []= array('timeslot' => $row);
-
-            $reserve_key = md5($row->class_number).md5($row->term);
-            $needed_reserves[$reserve_key]= array(
-              'class_number' => $row->class_number,
-              'term' => $row->term,
-              'index' => count($result)-1
-            );
-          }
-
-          $db->
-            from('reserves')->
-            select();
-          foreach ($needed_reserves as $key => $reserve) {
-            $db->
-              orwhere('class_number', $reserve['class_number'])->
-              where('term', $reserve['term']);
-          }
-          $results = $db->get();
-          foreach ($results as $row) {
-            $reserve_key = md5($row->class_number).md5($row->term);
-            $index = $needed_reserves[$reserve_key]['index'];
-            if (!isset($result[$index]['timeslot']->reserves)) {
-              $result[$index]['timeslot']->reserves = array('reserves' => array());
-            }
-            unset($row->class_number);
-            unset($row->term);
-            $result[$index]['timeslot']->reserves['reserves'] []= array('reserve' => $row);
-          }
-          $result = array('timeslots' => $result);
-        } else {
-          $result = array('error' => array('text' => "No classes currently being held by this professor"));
-        }
-
-        $this->echo_formatted_data($result, $return_type);
+    if (ereg('^[0-9]+$', $param1)) {
+      if ($param2 == 'timeslots') {
+        // v1/prof/<instructor id>/timeslots.<return type>
+        $this->prof_timeslots($param1, $return_type);
 
       } else if (!$param2) {
-        $results = $db->
-          from('instructors')->
-          select()->
-          where('id', $param1)->
-          limit(1)->
-          get();
+        // v1/prof/<instructor id>.<return type>
+        $this->prof_by_id($param1, $return_type);
 
-        if (count($results)) {
-          $result = array();
-          foreach ($results as $row) {
-            $result = array('professor' => $row);
-          }
-
-        } else {
-          $result = array('error' => array('text' => "No professor exists with this id"));
-        }
-
-        $this->echo_formatted_data($result, $return_type);
+      } else {
+        throw new Kohana_404_Exception();
       }
+
+    } else if (!$param2) {
+      if ($param1 == 'search') {
+        // v1/prof/search.<return type>?q=<query>
+        $this->prof_search($return_type);
+
+      } else {
+        throw new Kohana_404_Exception();
+      }
+
     } else {
       throw new Kohana_404_Exception();
     }
 	}
 
-  private function init_action(&$param1, &$param2, &$param3) {
-		$profiler = new Profiler;
-
-    if ($param3) {
-      list($param3, $return_type) = $this->action_info($param3);
-    } else if ($param2) {
-      list($param2, $return_type) = $this->action_info($param2);
-    } else {
-      list($param1, $return_type) = $this->action_info($param1);
-    }
-
-    if (!$param1) {
-      throw new Kohana_404_Exception();
-    }
-
-    return $return_type;
-  }
-
-  private function get_db() {
-    $cal_year = $this->input->get('cal', '20092010');
-    if (!ereg('^[0-9]+$', $cal_year)) {
-      return null;
-    }
-
-	  $db = Database::instance('uwdata'.$cal_year);
-
-    return $db;
-  }
-
-  private function create_xml_object(&$xml, $data) {
-    foreach ($data as $name => $objectdata) {
-      $object = $xml->addChild($name);
-  		foreach ($objectdata as $key => $item) {
-  		  if (is_array($item)) {
-  		    $this->create_xml_object($object, $item);
-      	} else {
-      	  $object->addChild($key, htmlentities($item));
-      	}
-      }
-    }
-  }
-
+  //////////////////////////////////
+  //////////////////////////////////
 
   /**
    * A list of all faculties.
@@ -406,6 +284,136 @@ class V1_Controller extends Controller {
     $this->course_prereqs_by_result($result, $return_type);
   }
 
+  //////////////////////////////////
+  //////////////////////////////////
+
+  /**
+   * Information about the given professor.
+   *
+   * endpoint: v1/prof/<instructor id>.<return type>
+   * @example v1/prof/1409.json
+   */
+  private function prof_by_id($instructor_id, $return_type) {
+    $db = Database::instance('uwdata_schedule');
+
+    $results = $db->
+      from('instructors')->
+      select()->
+      where('id', $instructor_id)->
+      limit(1)->
+      get();
+
+    if (count($results)) {
+      $result = array();
+      foreach ($results as $row) {
+        $result = array('professor' => $row);
+      }
+
+    } else {
+      $result = array('error' => array('text' => "No professor exists with this id"));
+    }
+
+    $this->echo_formatted_data($result, $return_type);
+  }
+
+  /**
+   * All of the timeslots the given professor is running.
+   *
+   * endpoint: v1/prof/<instructor id>/timeslots.<return type>
+   * @example v1/prof/1409/timeslots.json
+   */
+  private function prof_timeslots($instructor_id, $return_type) {
+    $term = $this->get_term_input();
+
+    $db = Database::instance('uwdata_schedule');
+    $results = $db->
+      from('classes')->
+      select()->
+      where('instructor_id', $instructor_id)->
+      where('term', $term)->
+      limit(10)->
+      get();
+
+    if (count($results)) {
+      $result = array();
+      $needed_reserves = array();
+      foreach ($results as $row) {
+        $result []= array('timeslot' => $row);
+
+        $reserve_key = md5($row->class_number).md5($row->term);
+        $needed_reserves[$reserve_key]= array(
+          'class_number' => $row->class_number,
+          'term' => $row->term,
+          'index' => count($result)-1
+        );
+      }
+
+      $db->
+        from('reserves')->
+        select();
+      foreach ($needed_reserves as $key => $reserve) {
+        $db->
+          orwhere('class_number', $reserve['class_number'])->
+          where('term', $reserve['term']);
+      }
+      $results = $db->get();
+      foreach ($results as $row) {
+        $reserve_key = md5($row->class_number).md5($row->term);
+        $index = $needed_reserves[$reserve_key]['index'];
+        if (!isset($result[$index]['timeslot']->reserves)) {
+          $result[$index]['timeslot']->reserves = array('reserves' => array());
+        }
+        unset($row->class_number);
+        unset($row->term);
+        $result[$index]['timeslot']->reserves['reserves'] []= array('reserve' => $row);
+      }
+      $result = array('timeslots' => $result);
+    } else {
+      $result = array('error' => array('text' => "No classes currently being held by this professor"));
+    }
+
+    $this->echo_formatted_data($result, $return_type);
+  }
+
+  /**
+   * Search the professor list by first and last name.
+   *
+   * endpoint: v1/prof/search.<return type>?q=<query>
+   * @example v1/prof/search.json?q=Larry Smith
+   */
+  private function prof_search($return_type) {
+    $query = $this->input->get('q');
+    if ($query) {
+      $db = Database::instance('uwdata_schedule');
+
+      if (eregi('^[a-z \-]+$', $query)) {
+        $results = $db->
+          query('SELECT * FROM instructors WHERE MATCH (first_name, last_name) AGAINST ("'.mysql_escape_string($query).'") LIMIT 1;');
+
+        if (count($results)) {
+          foreach ($results as $row) {
+            $result []= array('course' => $row);
+          }
+          $result = array('courses' => $result);
+
+        } else {
+          $result = array('error' => array('text' => "No instructors found"));
+        }
+
+      } else {
+        $result = array('error' => array('text' => "Illegal characters found in the query"));
+      }
+
+    } else {
+      $result = array('error' => array('text' => "Please provide a ?q=<query> expression."));
+    }
+
+    $this->echo_formatted_data($result, $return_type);
+  }
+
+  //////////////////////////////////
+  //////////////////////////////////
+
   /**
    * Fetch a course by the faculty acronym and course number.
    *
@@ -529,6 +537,48 @@ class V1_Controller extends Controller {
   //////////////////////////////////
   //////////////////////////////////
 
+  private function init_action(&$param1, &$param2, &$param3) {
+		$profiler = new Profiler;
+
+    if ($param3) {
+      list($param3, $return_type) = $this->action_info($param3);
+    } else if ($param2) {
+      list($param2, $return_type) = $this->action_info($param2);
+    } else {
+      list($param1, $return_type) = $this->action_info($param1);
+    }
+
+    if (!$param1) {
+      throw new Kohana_404_Exception();
+    }
+
+    return $return_type;
+  }
+
+  private function get_db() {
+    $cal_year = $this->input->get('cal', '20092010');
+    if (!ereg('^[0-9]+$', $cal_year)) {
+      return null;
+    }
+
+	  $db = Database::instance('uwdata'.$cal_year);
+
+    return $db;
+  }
+
+  private function create_xml_object(&$xml, $data) {
+    foreach ($data as $name => $objectdata) {
+      $object = $xml->addChild($name);
+  		foreach ($objectdata as $key => $item) {
+  		  if (is_array($item)) {
+  		    $this->create_xml_object($object, $item);
+      	} else {
+      	  $object->addChild($key, htmlentities($item));
+      	}
+      }
+    }
+  }
+
   private function echo_formatted_data($data, $datatype) {
     Benchmark::start('echo_formatted_data');
 
@@ -572,6 +622,31 @@ class V1_Controller extends Controller {
       return null;
     }
     return $parts;
+  }
+
+  private function get_term_input() {
+    $term = $this->input->get('term');
+    if (!$term) {
+      $db = Database::instance('uwdata_schedule');
+
+      $results = $db->
+        from('terms')->
+        select('MAX(term_id) term_id')->
+        get();
+
+      if (count($results)) {
+        foreach ($results as $row) {
+          $term = $row->term_id;
+          break;
+        }
+      }
+    }
+
+    if (!ereg('^[0-9]+$', $term)) {
+      throw new Kohana_Exception();
+    }
+
+    return $term;
   }
 
 }
