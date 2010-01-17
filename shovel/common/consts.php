@@ -51,7 +51,7 @@ CREATE TABLE IF NOT EXISTS `courses` (
   `prereqs` text NOT NULL,
   `__last_touched` timestamp NOT NULL default CURRENT_TIMESTAMP on update CURRENT_TIMESTAMP,
   PRIMARY KEY  (`cid`),
-  KEY `faculty_acronym` (`faculty_acronym`)
+  UNIQUE KEY `faculty_acronym` (`faculty_acronym`,`course_number`)
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1 ROW_FORMAT=COMPACT;
 
 CREATE TABLE IF NOT EXISTS `faculties` (

@@ -82,7 +82,7 @@ $config['enable_hooks'] = FALSE;
  *  3 - Notices
  *  4 - Debugging
  */
-$config['log_threshold'] = 4;
+$config['log_threshold'] = 1;
 
 /**
  * Message logging directory.

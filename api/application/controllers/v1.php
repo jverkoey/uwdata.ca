@@ -1,159 +1,100 @@
 <?php defined('SYSPATH') OR die('No direct access allowed.');
 /**
- * Default Kohana controller. This controller should NOT be used in production.
- * It is for demonstration purposes only!
- *
- * @package    Core
- * @author     Kohana Team
- * @copyright  (c) 2007-2008 Kohana Team
- * @license    http://kohanaphp.com/license.html
+ * @package    uwdatav1
+ * @author     Jeff Verkoeyen
+ * @copyright  (c) 2010 Jeff Verkoeyen
+ * @license    http://www.apache.org/licenses/LICENSE-2.0
  */
 class V1_Controller extends Controller {
 
-	// Disable this controller when Kohana is set to production mode.
-	// See http://docs.kohanaphp.com/installation/deployment for more details.
-	const ALLOW_PRODUCTION = FALSE;
+  /**
+   * Possible endpoints:
+   *   v1/faculty/list.<return type>
+   *   - A list of all faculties.
+   *     faculty_list
+   *   v1/faculty/<faculty acronym>.<return type>
+   *   - Detailed information about the given faculty.
+   *     faculty_by_id
+   *   v1/faculty/<faculty acronym>/courses.<return type>
+   *   - All of the courses in the given faculty.
+   *     faculty_courses
+   */
+	public function faculty($param1, $param2 = null, $param3 = null) {
+	  $return_type = $this->init_action($param1, $param2, $param3);
 
-  private function get_db() {
-    $cal_year = $this->input->get('cal', '20092010');
-    if (!ereg('^[0-9]+$', $cal_year)) {
-      return null;
-    }
+    if (eregi('^[a-z]+$', $param1)) {
+      // v1/faculty/<text>
 
-	  $db = Database::instance('uwdata'.$cal_year);
+      if (!$param2) {
+        // v1/faculty/<text>.<return type>
 
-    return $db;
-  }
+        if ($param1 == 'list') {
+          // v1/faculty/list.<return type>
+          $this->faculty_list($return_type);
 
-	public function faculty($primary_action, $param1 = null) {
-		//$profiler = new Profiler;
-
-    if ($param1) {
-      list($action, $returntype) = $this->action_info($param1);
-    } else {
-      list($action, $returntype) = $this->action_info($primary_action);
-    }
-
-    if (!$action) {
-      throw new Kohana_404_Exception('Unknown API action');
-    }
-
-    $db = $this->get_db();
-
-    if ($action == 'list' && $param1 == null) {
-      $result = $db->from('faculties')->select(array('acronym', 'name'))->get();
-
-      $faculties = array();
-      foreach ($result as $row) {
-        $faculties []= array('faculty' => $row);
-      }
-
-      $this->echo_formatted_data(array('faculties' => $faculties), $returntype);
-
-    } else if ($primary_action == 'courses') {
-      $result = $db->from('courses')->select()->like('faculty_acronym', $action)->get();
-
-      $courses = array();
-      foreach ($result as $row) {
-        $courses []= array('course' => $row);
-      }
-
-      $this->echo_formatted_data(array('courses' => $courses), $returntype);
-
-    } else {
-  	  $result = $db->from('faculties')->select(array('acronym', 'name'))->like('acronym', $action)->limit(1)->get();
-
-      if (count($result)) {
-        foreach ($result as $row) {
-          $faculty = array('faculty' => $row);
+        } else {
+          // v1/faculty/<faculty>.<return type>
+          $this->faculty_by_id($param1, $return_type);
         }
+
+      } else if ($param2 == 'courses') {
+        // v1/faculty/<faculty>/courses.<return type>
+        $this->faculty_courses($param1, $return_type);
+
       } else {
-        $faculty = array('error' => array('text' => "Unknown faculty"));
+        throw new Kohana_404_Exception();
       }
 
-      $this->echo_formatted_data($faculty, $returntype);
+    } else {
+      throw new Kohana_404_Exception();
     }
 	}
 
+  /**
+   * Possible endpoints:
+   *   v1/course/<faculty acronym>/<course number>.<return type>
+   *   - Detailed information about the given course.
+   *     course_by_number
+   *   v1/course/<course id>.<return type>
+   *   - Detailed information about the given course.
+   *     course_by_id
+   *   v1/course/<faculty acronym>/<course number>/prereqs.<return type>
+   *   - The prerequisites logic and description for the given course.
+   *     course_prereqs_by_number
+   *   v1/course/<course id>/prereqs.<return type>
+   *   - The prerequisites logic and description for the given course.
+   *     course_prereqs_by_id
+   */
 	public function course($param1, $param2 = null, $param3 = null) {
-		//$profiler = new Profiler;
-
-    if ($param3) {
-      list($param3, $returntype) = $this->action_info($param3);
-    } else if ($param2) {
-      list($param2, $returntype) = $this->action_info($param2);
-    } else {
-      list($param1, $returntype) = $this->action_info($param1);
-    }
-
-    if (!$param1) {
-      throw new Kohana_404_Exception('Unknown API action');
-    }
-
-    $db = $this->get_db();
+	  $return_type = $this->init_action($param1, $param2, $param3);
 
     if (eregi('^[a-z]+$', $param1) && eregi('^[0-9]+[a-z]*$', $param2)) {
+      // v1/course/<faculty acronym>/<course number>
+
       if ($param3 == 'prereqs') {
-        $result = $db->
-          from('courses')->
-          select(array(
-            'prereqs',
-            'prereq_desc'
-          ))->
-          like('faculty_acronym', $param1)->
-          where('course_number', $param2)->
-          get();
+        // v1/course/<faculty acronym>/<course number>/prereqs.<return type>
+        $this->course_prereqs_by_number($param1, $param2, $return_type);
 
-        if (count($result)) {
-          foreach ($result as $row) {
-            $course = $row;
-          }
-          if ($returntype == 'json') {
-            $prereqs = json_decode($course->prereqs, TRUE);
-          } else {
-            $prereqs = array('prereqs' => array('json' => $course->prereqs));
-          }
-        } else {
-          $prereqs = array('error' => array('text' => "Unknown course"));
-        }
-
-        $this->echo_formatted_data($prereqs, $returntype);
+      } else if (!$param3) {
+          // v1/course/<faculty acronym>/<course number>.<return type>
+        $this->course_by_number($param1, $param2, $return_type);
 
       } else {
-        $result = $db->
-          from('courses')->
-          select()->
-          like('faculty_acronym', $param1)->
-          where('course_number', $param2)->
-          get();
-
-        if (count($result)) {
-          foreach ($result as $row) {
-            $course = array('course' => $row);
-          }
-        } else {
-          $course = array('error' => array('text' => "Unknown course"));
-        }
-
-        $this->echo_formatted_data($course, $returntype);
+        throw new Kohana_404_Exception();
       }
 
     } else if (eregi('^[0-9]+$', $param1)) {
-      $result = $db->
-        from('courses')->
-        select()->
-        where('cid', $param1)->
-        get();
+      if ($param2 == 'prereqs') {
+        // v1/course/<course id>/prereqs.<return type>
+        $this->course_prereqs_by_id($param1, $return_type);
 
-      if (count($result)) {
-        foreach ($result as $row) {
-          $course = array('course' => $row);
-        }
+      } else if (!$param2) {
+        // v1/course/<course id>.<return type>
+        $this->course_by_id($param1, $return_type);
+
       } else {
-        $course = array('error' => array('text' => "Unknown course"));
+        throw new Kohana_404_Exception();
       }
-
-      $this->echo_formatted_data($course, $returntype);
 
     } else {
       throw new Kohana_404_Exception();
@@ -161,19 +102,7 @@ class V1_Controller extends Controller {
 	}
 
 	public function prof($param1, $param2 = null, $param3 = null) {
-		$profiler = new Profiler;
-
-    if ($param3) {
-      list($param3, $returntype) = $this->action_info($param3);
-    } else if ($param2) {
-      list($param2, $returntype) = $this->action_info($param2);
-    } else {
-      list($param1, $returntype) = $this->action_info($param1);
-    }
-
-    if (!$param1) {
-      throw new Kohana_404_Exception('Unknown API action');
-    }
+	  $return_type = $this->init_action($param1, $param2, $param3);
 
     $db = Database::instance('uwdata_schedule');
 
@@ -219,7 +148,7 @@ class V1_Controller extends Controller {
       } else {
         $result = array('error' => array('text' => "Please provide a ?q=<query> expression."));
       }
-      $this->echo_formatted_data($result, $returntype);
+      $this->echo_formatted_data($result, $return_type);
 
     } else if (ereg('^[0-9]+$', $param1) && $param1 != 0) {
       if ($param2 == 'classes') {
@@ -269,7 +198,7 @@ class V1_Controller extends Controller {
           $result = array('error' => array('text' => "No classes currently being held by this professor"));
         }
 
-        $this->echo_formatted_data($result, $returntype);
+        $this->echo_formatted_data($result, $return_type);
 
       } else if (!$param2) {
         $results = $db->
@@ -289,12 +218,41 @@ class V1_Controller extends Controller {
           $result = array('error' => array('text' => "No professor exists with this id"));
         }
 
-        $this->echo_formatted_data($result, $returntype);
+        $this->echo_formatted_data($result, $return_type);
       }
     } else {
       throw new Kohana_404_Exception();
     }
 	}
+
+  private function init_action(&$param1, &$param2, &$param3) {
+		$profiler = new Profiler;
+
+    if ($param3) {
+      list($param3, $return_type) = $this->action_info($param3);
+    } else if ($param2) {
+      list($param2, $return_type) = $this->action_info($param2);
+    } else {
+      list($param1, $return_type) = $this->action_info($param1);
+    }
+
+    if (!$param1) {
+      throw new Kohana_404_Exception();
+    }
+
+    return $return_type;
+  }
+
+  private function get_db() {
+    $cal_year = $this->input->get('cal', '20092010');
+    if (!ereg('^[0-9]+$', $cal_year)) {
+      return null;
+    }
+
+	  $db = Database::instance('uwdata'.$cal_year);
+
+    return $db;
+  }
 
   private function create_xml_object(&$xml, $data) {
     foreach ($data as $name => $objectdata) {
@@ -309,7 +267,271 @@ class V1_Controller extends Controller {
     }
   }
 
+
+  /**
+   * A list of all faculties.
+   *
+   * endpoint: v1/faculty/list.<return type>
+   */
+  private function faculty_list($return_type) {
+    Benchmark::start('faculty_list');
+
+    $db = $this->get_db();
+
+    $result = $db->
+      from('faculties')->
+      select(array('acronym', 'name'))->
+      get();
+
+    $faculties = array();
+    foreach ($result as $row) {
+      $faculties []= array('faculty' => $row);
+    }
+
+    Benchmark::stop('faculty_list');
+
+    $this->echo_formatted_data(array('faculties' => $faculties), $return_type);
+  }
+
+  /**
+   * Detailed information about the given faculty.
+   *
+   * endpoint: v1/faculty/<faculty acronym>.<return type>
+   */
+  private function faculty_by_id($id, $return_type) {
+    $db = $this->get_db();
+
+	  $result = $db->
+	    from('faculties')->
+	    select('acronym', 'name', '__last_touched as last_updated')->
+	    where('acronym', $id)->
+	    limit(1)->
+	    get();
+
+    if (count($result)) {
+      foreach ($result as $row) {
+        $faculty = array('faculty' => $row);
+      }
+    } else {
+      $faculty = array('error' => array('text' => "Unknown faculty"));
+    }
+
+    $this->echo_formatted_data($faculty, $return_type);
+  }
+
+  /**
+   * All of the courses in the given faculty.
+   *
+   * endpoint: v1/faculty/<faculty acronym>/courses.<return type>
+   */
+  private function faculty_courses($faculty_acronym, $return_type) {
+    $db = $this->get_db();
+
+    $result = $db->
+      from('courses')->
+      select(
+        'cid',
+        'course_number',
+        'title',
+        'description')->
+      where('faculty_acronym', $faculty_acronym)->
+      get();
+
+    $courses = array();
+    foreach ($result as $row) {
+      $courses []= array('course' => $row);
+    }
+
+    $this->echo_formatted_data(array('courses' => $courses), $return_type);
+  }
+
+  //////////////////////////////////
+  //////////////////////////////////
+
+  /**
+   * Detailed information about the given course.
+   *
+   * endpoint: v1/course/<faculty acronym>/<course number>.<return type>
+   * @example v1/course/CS/135.json
+   */
+  private function course_by_number($faculty_acronym, $course_number, $return_type) {
+    $this->course_by_result(
+      $this->fetch_course_by_number($faculty_acronym, $course_number), $return_type);
+  }
+
+  /**
+   * Detailed information about the given course.
+   *
+   * endpoint: v1/course/<course id>.<return type>
+   * @example v1/course/12040.json
+   */
+  private function course_by_id($cid, $return_type) {
+    $this->course_by_result($this->fetch_course_by_id($cid), $return_type);
+  }
+
+  /**
+   * The prerequisites logic and description for the given course.
+   *
+   * endpoint: v1/course/<faculty acronym>/<course number>/prereqs.<return type>
+   * @example v1/course/CS/135/prereqs.json
+   */
+  private function course_prereqs_by_number($faculty_acronym, $course_number, $return_type) {
+    $db = $this->get_db();
+
+    $result = $db->
+      from('courses')->
+      select('prereqs')->
+      where('faculty_acronym', $faculty_acronym)->
+      where('course_number', $course_number)->
+      get();
+
+    $this->course_prereqs_by_result($result, $return_type);
+  }
+
+  /**
+   * The prerequisites logic and description for the given course.
+   *
+   * endpoint: v1/course/<course id>/prereqs.<return type>
+   * @example v1/course/12040/prereqs.json
+   */
+  private function course_prereqs_by_id($course_id, $return_type) {
+    $db = $this->get_db();
+
+    $result = $db->
+      from('courses')->
+      select('prereqs')->
+      where('cid', $course_id)->
+      get();
+
+    $this->course_prereqs_by_result($result, $return_type);
+  }
+
+  /**
+   * Fetch a course by the faculty acronym and course number.
+   *
+   * @example fetch_course_by_number('CS', '135');
+   * @return  The db result object.
+   */
+  private function fetch_course_by_number($faculty_acronym, $course_number) {
+    $db = $this->select_detailed_course_info($this->get_db());
+
+    $result = $db->
+      from('courses')->
+      where('faculty_acronym', $faculty_acronym)->
+      where('course_number', $course_number)->
+      limit(1)->
+      get();
+
+    return $result;
+  }
+
+  /**
+   * Fetch a course by the course id.
+   *
+   * @example fetch_course_by_id(12040);
+   * @param   $cid        The course id.
+   * @return  The db result object.
+   */
+  private function fetch_course_by_id($cid) {
+    $db = $this->select_detailed_course_info($this->get_db());
+
+    $result = $db->
+      from('courses')->
+      where('cid', $cid)->
+      limit(1)->
+      get();
+
+    return $result;
+  }
+
+  /**
+   * Prime a db object with the necessary SELECT fields for a course.
+   */
+  private function select_detailed_course_info($db) {
+    $db->select(
+      'cid',
+      'faculty_acronym',
+      'course_number',
+      'title',
+      'description',
+      'has_lec',
+      'has_lab',
+      'has_tst',
+      'has_tut',
+      'has_prj',
+      'credit_value',
+      'has_dist_ed',
+      'only_dist_ed',
+      'has_stj',
+      'only_stj',
+      'has_ren',
+      'only_ren',
+      'has_cgr',
+      'only_cgr',
+      'needs_dept_consent',
+      'needs_instr_consent',
+      'avail_fall',
+      'avail_winter',
+      'avail_spring',
+      'prereq_desc',
+      'antireq_desc',
+      'crosslist_desc',
+      'coreq_desc',
+      'note_desc',
+      'src_url',
+      '__last_touched as last_updated');
+    return $db;
+  }
+
+  /**
+   * Internal helper for course_by_number and course_by_id.
+   * Handles the common code for retrieving the course object and outputting it.
+   */
+  private function course_by_result($result, $return_type) {
+    if (count($result)) {
+      foreach ($result as $row) {
+        $course = array('course' => $row);
+      }
+    } else {
+      $course = array('error' => array('text' => "Unknown course"));
+    }
+
+    $this->echo_formatted_data($course, $return_type);
+  }
+
+  /**
+   * Internal helper for course_by_number and course_by_id.
+   * Handles the common code for retrieving the course object and outputting it.
+   */
+  private function course_prereqs_by_result($result, $return_type) {
+    if (count($result)) {
+      foreach ($result as $row) {
+        $course = $row;
+      }
+      if ($return_type == 'json') {
+        $prereqs = array(
+          'prereqs' => json_decode($course->prereqs, TRUE)
+        );
+      } else {
+        $prereqs = array(
+          'prereqs' => array(
+            'json' => $course->prereqs
+          )
+        );
+      }
+    } else {
+      $prereqs = array('error' => array('text' => "Unknown course"));
+    }
+
+    $this->echo_formatted_data($prereqs, $return_type);
+  }
+
+  //////////////////////////////////
+  //////////////////////////////////
+
   private function echo_formatted_data($data, $datatype) {
+    Benchmark::start('echo_formatted_data');
+
     switch (strtolower($datatype)) {
       case 'json': {
         echo json_encode($data);
@@ -331,10 +553,12 @@ class V1_Controller extends Controller {
       }
 
       default: {
-        throw new Kohana_404_Exception('Unknown return type');
+        throw new Kohana_404_Exception();
         break;
       }
     }
+
+    Benchmark::stop('echo_formatted_data');
   }
 
   private function action_info($action) {
