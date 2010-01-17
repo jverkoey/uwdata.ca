@@ -143,6 +143,29 @@ class V1_Controller extends Controller {
     }
 	}
 
+  /**
+   * Possible endpoints:
+   *   v1/term/list.<return type>
+   *   - A list of all academic terms.
+   *     term_list
+   */
+	public function term($param1, $param2 = null, $param3 = null) {
+	  $return_type = $this->init_action($param1, $param2, $param3);
+
+    if (!$param2) {
+      if ($param1 == 'list') {
+        // v1/term/list.<return type>
+        $this->term_list($return_type);
+
+      } else {
+        throw new Kohana_404_Exception();
+      }
+
+    } else {
+      throw new Kohana_404_Exception();
+    }
+	}
+
   //////////////////////////////////
   //////////////////////////////////
 
@@ -409,6 +432,30 @@ class V1_Controller extends Controller {
     }
 
     $this->echo_formatted_data($result, $return_type);
+  }
+
+  //////////////////////////////////
+  //////////////////////////////////
+
+  /**
+   * A list of all academic terms.
+   *
+   * endpoint: v1/term/list.<return type>
+   */
+  private function term_list($return_type) {
+    $db = Database::instance('uwdata_schedule');
+
+    $results = $db->
+      from('terms')->
+      select('term_id', 'term_season', 'term_year', '__last_touched as last_updated')->
+      get();
+
+    $result = array();
+    foreach ($results as $row) {
+      $result []= array('term' => $row);
+    }
+
+    $this->echo_formatted_data(array('terms' => $result), $return_type);
   }
 
   //////////////////////////////////
