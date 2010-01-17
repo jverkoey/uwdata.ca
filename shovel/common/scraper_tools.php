@@ -5,14 +5,24 @@ define('CACHE_EXPIRY_TIMESPAN', 60*60*24);
 /**
  * Fetch the given url by first checking the local cache and then the web.
  */
-function fetch_url($url) {
+function fetch_url($url, $expiry = CACHE_EXPIRY_TIMESPAN, $post_params = null) {
   global $cookie;
   global $calendar_url;
 
-  $cache_path = CACHE_PATH.md5($calendar_url).md5($url);
+  if ($post_params) {
+    $post = array();
+    foreach ($post_params as $key => $value) {
+      $post []= $key.'='.htmlentities($value);
+    }
+    $post = implode('&', $post);
+  } else {
+    $post = '';
+  }
+
+  $cache_path = CACHE_PATH.md5($calendar_url).md5($url.$post);
   echo 'Fetching '.$url.'...memory: '.memory_get_usage().'...';
   if (file_exists($cache_path) &&
-      filemtime($cache_path) >= time() - CACHE_EXPIRY_TIMESPAN) {
+      filemtime($cache_path) >= time() - $expiry) {
     echo 'from cache.'."\n";
     $data = file_get_contents($cache_path);
   } else {
@@ -24,6 +34,10 @@ function fetch_url($url) {
     //curl_setopt($ch, CURLOPT_VERBOSE, true);
     curl_setopt($ch, CURLOPT_COOKIE, $cookie);
     curl_setopt($ch, CURLOPT_USERAGENT, 'UWDataSpider/1.0 (Macintosh; U; Intel Mac OS X 10.5; en-US; rv:1.9.1.7)');
+    if ($post_params) {
+      curl_setopt($ch, CURLOPT_POST, count($post_params));
+      curl_setopt($ch, CURLOPT_POSTFIELDS, $post);
+    }
     $data = curl_exec($ch);
 
 /*
