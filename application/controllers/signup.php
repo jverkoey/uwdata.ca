@@ -93,23 +93,33 @@ EMAIL
 
       } else {
         $validation_key = $this->getUniqueCode(50);
-        
+
         // What kind of email address is it?
         if (eregi('@([a-z0-9]+\.)*uwaterloo\.ca$', $email)) {
+          $public_api_key = $this->getUniqueCode(50);
+          $private_api_key = $this->getUniqueCode(50);
           $successfully_sent_email = $this->send_api_key_email($email, $validation_key);
 
         } else {
           $successfully_sent_email = $this->send_coming_soon_email($email, $validation_key);
         }
 
-        $values = array(
-          'email' => $email,
-          'validation_key' => $validation_key
+        $user_details_values = array();
+        if (isset($public_api_key) && isset($private_api_key)) {
+          $user_details_values['public_api_key'] = $public_api_key;
+          $user_details_values['private_api_key'] = $private_api_key;
+        }
+        $user_details = $db->insert('user_details', $user_details_values);
+
+        $email_users_values = array(
+          'email'           => $email,
+          'validation_key'  => $validation_key,
+          'user_id'         => $user_details->insert_id()
         );
         if ($successfully_sent_email) {
-          $values['last_emailed_timestamp'] = 'CURRENT_TIMESTAMP';
+          $email_users_values['last_emailed_timestamp'] = 'CURRENT_TIMESTAMP';
         }
-        $db->insert('email_users', $values);
+        $db->insert('email_users', $email_users_values);
       }
 
     } else {
