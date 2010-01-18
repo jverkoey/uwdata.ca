@@ -124,7 +124,11 @@ $links = array();
 
 foreach ($linkElms as $e) {
   if (0 === strpos($e->innertext, 'Faculty')) {
-    $links[$e->innertext] = $calendar_url.$e->href;
+    if ($is_old_calendar) {
+      $links[$e->innertext] = $calendar_url.$e->href;
+    } else {
+      $links[$e->innertext] = COURSE_CAL_ROOT_URL.$e->href;
+    }
   }
 }
 

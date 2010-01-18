@@ -67,6 +67,9 @@ class V1_Controller extends Controller {
    *   v1/course/<faculty acronym>/<course number>/schedule.<return type>
    *   - The schedule for the given course.
    *     course_schedule_by_number
+   *   v1/course/search.<return type>?q=<query>
+   *   - Search the course list by title and description.
+   *     course_search
    */
 	public function course($param1, $param2 = null, $param3 = null) {
 	  $return_type = $this->init_action($param1, $param2, $param3);
@@ -106,6 +109,10 @@ class V1_Controller extends Controller {
       } else {
         throw new Kohana_404_Exception();
       }
+
+    } else if (!$param2) {
+      // v1/course/search.<return type>?q=<query>
+      $this->course_search($return_type);
 
     } else {
       throw new Kohana_404_Exception();
@@ -387,6 +394,72 @@ class V1_Controller extends Controller {
     $this->echo_formatted_data($data, $return_type);
   }
 
+  /**
+   * Search the course list by title and description.
+   *
+   * endpoint: v1/course/search.<return type>?q=<query>
+   * @example v1/course/search.json?q=Rhetoric
+   */
+  private function course_search($return_type) {
+    $query = $this->input->get('q');
+    if ($query) {
+      $db = $this->select_detailed_course_info($this->get_db());
+
+      if (eregi('^[a-z\'" \-]+$', $query)) {
+        $perpage = $this->input->get('perpage', '10');
+        $page = $this->input->get('page', '0');
+        if (ereg('^[0-9]+$', $perpage) && ereg('^[0-9]+$', $page)) {
+          $results = $db->
+            from('courses')->
+            where('MATCH (title, description) AGAINST ("'.mysql_escape_string($query).'")')->
+            limit($perpage, $page * $perpage)->
+            get();
+
+          $total_results = $db->
+            from('courses')->
+            select('COUNT(*) as total_results')->
+            where('MATCH (title, description) AGAINST ("'.mysql_escape_string($query).'")')->
+            limit(1)->
+            get();
+
+          $total_result_count = 0;
+          foreach ($total_results as $row) {
+            $total_result_count = $row->total_results;
+            break;
+          }
+
+          if ($total_result_count > 0) {
+            $result = array();
+            foreach ($results as $row) {
+              $result []= array('course' => $row);
+            }
+
+            $result = array(
+              'page_index' => $page,
+              'results_per_page' => $perpage,
+              'page_result_count' => count($results),
+              'total_result_count' => $total_result_count,
+              'courses' => $result
+            );
+
+          } else {
+            $result = $this->error_data('No courses found');
+          }
+        } else {
+          $result = $this->error_data('Invalid pagination arguments. Numbers only, please.');
+        }
+
+      } else {
+        $result = $this->error_data('Illegal characters found in the query');
+      }
+
+    } else {
+      $result = $this->error_data('Please provide a ?q=<query> expression.');
+    }
+
+    $this->echo_formatted_data($result, $return_type);
+  }
+
   //////////////////////////////////
   //////////////////////////////////
 
@@ -491,16 +564,16 @@ class V1_Controller extends Controller {
 
       if (eregi('^[a-z \-]+$', $query)) {
         $results = $db->
-          query('SELECT * FROM instructors WHERE MATCH (first_name, last_name) AGAINST ("'.mysql_escape_string($query).'") LIMIT 1;');
+          query('SELECT * FROM instructors WHERE MATCH (first_name, last_name) AGAINST ("'.mysql_escape_string($query).'") LIMIT 10;');
 
         if (count($results)) {
           foreach ($results as $row) {
-            $result []= array('course' => $row);
+            $result []= array('professor' => $row);
           }
-          $result = array('courses' => $result);
+          $result = array('professors' => $result);
 
         } else {
-          $result = $this->error_data('No instructors found');
+          $result = $this->error_data('No professors found');
         }
 
       } else {
@@ -726,15 +799,23 @@ class V1_Controller extends Controller {
     return $db;
   }
 
+  private function clean_xml_data($data) {
+    return preg_replace('/\s&\s/', '&amp;', $data);
+  }
+
   private function create_xml_object(&$xml, $data) {
     foreach ($data as $name => $objectdata) {
-      $object = $xml->addChild($name);
-  		foreach ($objectdata as $key => $item) {
-  		  if (is_array($item)) {
-  		    $this->create_xml_object($object, $item);
-      	} else {
-      	  $object->addChild($key, htmlentities($item));
-      	}
+      if (is_array($objectdata) || is_object($objectdata)) {
+        $object = $xml->addChild($name);
+    		foreach ($objectdata as $key => $item) {
+    		  if (is_array($item)) {
+    		    $this->create_xml_object($object, $item);
+        	} else {
+        	  $object->addChild($key, $this->clean_xml_data($item));
+        	}
+        }
+      } else {
+    	  $xml->addChild($name, $this->clean_xml_data($objectdata));
       }
     }
   }

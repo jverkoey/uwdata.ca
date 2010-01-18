@@ -21,7 +21,7 @@ CREATE TABLE IF NOT EXISTS `courses` (
   `cid` int(10) unsigned NOT NULL,
   `faculty_acronym` varchar(10) NOT NULL,
   `course_number` varchar(6) NOT NULL,
-  `title` text NOT NULL,
+  `title` varchar(150) NOT NULL,
   `description` text NOT NULL,
   `has_lec` tinyint(1) NOT NULL,
   `has_lab` tinyint(1) NOT NULL,
@@ -47,11 +47,12 @@ CREATE TABLE IF NOT EXISTS `courses` (
   `crosslist_desc` text NOT NULL,
   `coreq_desc` text NOT NULL,
   `note_desc` text NOT NULL,
-  `src_url` text NOT NULL,
+  `src_url` varchar(100) NOT NULL,
   `prereqs` text NOT NULL,
   `__last_touched` timestamp NOT NULL default CURRENT_TIMESTAMP on update CURRENT_TIMESTAMP,
   PRIMARY KEY  (`cid`),
-  UNIQUE KEY `faculty_acronym` (`faculty_acronym`,`course_number`)
+  UNIQUE KEY `faculty_acronym` (`faculty_acronym`,`course_number`),
+  FULLTEXT KEY `title` (`title`,`description`)
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1 ROW_FORMAT=COMPACT;
 
 CREATE TABLE IF NOT EXISTS `faculties` (
@@ -59,7 +60,7 @@ CREATE TABLE IF NOT EXISTS `faculties` (
   `name` varchar(100) NOT NULL,
   `__last_touched` timestamp NOT NULL default CURRENT_TIMESTAMP on update CURRENT_TIMESTAMP,
   PRIMARY KEY  (`acronym`),
-  KEY `name` (`name`)
+  KEY `name` (`name`),
+  FULLTEXT KEY `name_2` (`name`)
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
-
 SCHEMA;
