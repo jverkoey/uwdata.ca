@@ -21,32 +21,42 @@ class Signup_Controller extends Uwdata_Controller {
     $this->render_markdown_template($content);
 	}
 
-  private function send_email($email) {
-    // Use connect() method to load Swiftmailer and connect using the parameters set in the email config file
+  private function send_email($email, $subject, $content) {
     $swift = email::connect();
 
-    // From, subject and HTML message
     $from = 'no-reply@uwdata.ca';
-    $subject = 'Thanks: ' . date("d/m/Y");
-    $message = 'This is the <b>backup</b> for ' . date("d/m/Y");
+    $subject = $subject;
+    $message = $content;
 
-    // Build recipient lists
     $recipients = new Swift_RecipientList;
     $recipients->addTo($email);
 
     // Build the HTML message
     $message = new Swift_Message($subject, $message, "text/html");
 
-    if ($swift->send($message, $recipients, $from)) {
-      // Success
-      echo 'success';
-    } else {
-      // Failure
-      echo 'failed';
-    }
+    $succeeded = !!$swift->send($message, $recipients, $from);
 
-    // Disconnect
     $swift->disconnect();
+
+    return $succeeded;
+  }
+
+  private function send_api_key_email($email) {
+    return $this->send_email($email, 'Your uwdata API keys', <<<EMAIL
+<div style="font-family: arial,helvetica,clean,sans-serif">
+<h1>Welcome to the UW Data developer program!</h1>
+</div>
+EMAIL
+    );
+  }
+
+  private function send_coming_soon_email($email) {
+    return $this->send_email($email, 'Thanks for signing up!', <<<EMAIL
+<div style="font-family: arial,helvetica,clean,sans-serif">
+<h1>Thanks for your interest in the UW Data developer program!</h1>
+</div>
+EMAIL
+    );
   }
 
   public function request() {
@@ -70,12 +80,11 @@ class Signup_Controller extends Uwdata_Controller {
       } else {
         // What kind of email address is it?
         if (eregi('@([a-z0-9]+\.)*uwaterloo\.ca$', $email)) {
-          // It's a waterloo email.
-          echo 'waterloo';
+          $this->send_api_key_email($email);
+
         } else {
-          echo 'not waterloo';
+          $this->send_coming_soon_email($email);
         }
-        $this->send_email($email);
 /*
         $result_set = $db->
           insert('email_users', array(
