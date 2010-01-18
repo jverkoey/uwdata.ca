@@ -72,7 +72,6 @@
   padding-top: 20px;
   font-size: 4em;
   letter-spacing: 0.05em;
-  font-family: "Trebuchet MS",Arial,Helvetica,sans-serif;
 }
 
 #pageheader .title a,
@@ -201,7 +200,6 @@
   margin-bottom: 20px;
   line-height: 1.7em;
   text-shadow: 1px 1px 0px #DDD;
-  font-family: "Trebuchet MS",Arial,Helvetica,sans-serif;
   color: #333;
 }
 

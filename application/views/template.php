@@ -13,10 +13,12 @@
 <div id="pageheader">
   <div class="fixedwidth">
     <div class="title"><a href="/"><span class="uwcolor">uw</span>data<span class="subtitle">.ca</span></a></div>
+<? if (!IN_PRODUCTION) { ?>
     <ul>
       <li><a href="/learnmore">Learn more</a></li>
       <li><a href="/signup" class="standout">Get an API key</a></li>
     </ul>
+<? } ?>
   </div>
 </div>
 <div id="pageheadershadow"></div>

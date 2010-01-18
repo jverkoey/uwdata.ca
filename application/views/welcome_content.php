@@ -1,4 +1,5 @@
 <?php defined('SYSPATH') OR die('No direct access allowed.'); ?>
+<? if (!IN_PRODUCTION) { ?>
 Stop scraping. <em>Start building.</em>
 =======================================
 
@@ -21,3 +22,8 @@ Search Results
 </div>
 
 </div>
+<? } else { ?>
+Coming soon...
+==============
+  
+<? } ?>
