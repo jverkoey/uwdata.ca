@@ -10,7 +10,7 @@ class Welcome_Controller extends Uwdata_Controller {
 	const ALLOW_PRODUCTION = TRUE;
 
 	public function index() {
-	  if (IN_PRODUCTION) {
+	  if (!IN_PRODUCTION) {
 		  $profiler = new Profiler;
 		}
 
