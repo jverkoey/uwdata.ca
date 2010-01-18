@@ -472,9 +472,8 @@ class V1_Controller extends Controller {
   private function prof_by_id($instructor_id, $return_type) {
     $db = Database::instance('uwdata_schedule');
 
-    $results = $db->
+    $results = $this->select_detailed_prof_info($db)->
       from('instructors')->
-      select()->
       where('id', $instructor_id)->
       limit(1)->
       get();
@@ -562,18 +561,50 @@ class V1_Controller extends Controller {
     if ($query) {
       $db = Database::instance('uwdata_schedule');
 
-      if (eregi('^[a-z \-]+$', $query)) {
-        $results = $db->
-          query('SELECT * FROM instructors WHERE MATCH (first_name, last_name) AGAINST ("'.mysql_escape_string($query).'") LIMIT 10;');
+      if (eregi('^[a-z\'" \-]+$', $query)) {
+        $perpage = $this->input->get('perpage', '10');
+        $page = $this->input->get('page', '0');
+        if (ereg('^[0-9]+$', $perpage) && ereg('^[0-9]+$', $page)) {
 
-        if (count($results)) {
-          foreach ($results as $row) {
-            $result []= array('professor' => $row);
+          $results = $this->select_detailed_prof_info($db)->
+            from('instructors')->
+            where('MATCH (first_name, last_name) AGAINST ("'.mysql_escape_string($query).'")')->
+            limit($perpage, $page * $perpage)->
+            get();
+
+          $total_results = $db->
+            from('instructors')->
+            select('COUNT(*) as total_results')->
+            where('MATCH (first_name, last_name) AGAINST ("'.mysql_escape_string($query).'")')->
+            limit(1)->
+            get();
+
+          $total_result_count = 0;
+          foreach ($total_results as $row) {
+            $total_result_count = $row->total_results;
+            break;
           }
-          $result = array('professors' => $result);
+
+          if ($total_result_count > 0) {
+            $result = array();
+            foreach ($results as $row) {
+              $result []= array('professor' => $row);
+            }
+
+            $result = array(
+              'page_index' => $page,
+              'results_per_page' => $perpage,
+              'page_result_count' => count($results),
+              'total_result_count' => $total_result_count,
+              'professors' => $result
+            );
+
+          } else {
+            $result = $this->error_data('No professors found');
+          }
 
         } else {
-          $result = $this->error_data('No professors found');
+          $result = $this->error_data('Invalid pagination arguments. Numbers only, please.');
         }
 
       } else {
@@ -720,6 +751,22 @@ class V1_Controller extends Controller {
       'instructor',
       'instructor_id',
       'note',
+      '__last_touched as last_updated');
+    return $db;
+  }
+
+  /**
+   * Prime a db object with the necessary SELECT fields for a professor.
+   */
+  private function select_detailed_prof_info($db) {
+    $db->select(
+      'id',
+      'first_name',
+      'last_name',
+      'ratemyprof_id',
+      'number_of_ratings',
+      'overall_quality',
+      'ease',
       '__last_touched as last_updated');
     return $db;
   }
