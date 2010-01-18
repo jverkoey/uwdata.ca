@@ -64,6 +64,9 @@ class V1_Controller extends Controller {
    *   v1/course/<course id>/prereqs.<return type>
    *   - The prerequisites logic and description for the given course.
    *     course_prereqs_by_id
+   *   v1/course/<faculty acronym>/<course number>/schedule.<return type>
+   *   - The schedule for the given course.
+   *     course_schedule_by_number
    */
 	public function course($param1, $param2 = null, $param3 = null) {
 	  $return_type = $this->init_action($param1, $param2, $param3);
@@ -74,6 +77,10 @@ class V1_Controller extends Controller {
       if ($param3 == 'prereqs') {
         // v1/course/<faculty acronym>/<course number>/prereqs.<return type>
         $this->course_prereqs_by_number($param1, $param2, $return_type);
+
+      } else if ($param3 == 'schedule') {
+        // v1/course/<faculty acronym>/<course number>/schedule.<return type>
+        $this->course_schedule_by_number($param1, $param2, $return_type);
 
       } else if (!$param3) {
           // v1/course/<faculty acronym>/<course number>.<return type>
@@ -87,6 +94,10 @@ class V1_Controller extends Controller {
       if ($param2 == 'prereqs') {
         // v1/course/<course id>/prereqs.<return type>
         $this->course_prereqs_by_id($param1, $return_type);
+
+      } else if ($param2 == 'schedule') {
+        // v1/course/<course id>/schedule.<return type>
+        $this->course_schedule_by_id($param1, $return_type);
 
       } else if (!$param2) {
         // v1/course/<course id>.<return type>
@@ -210,7 +221,7 @@ class V1_Controller extends Controller {
         $faculty = array('faculty' => $row);
       }
     } else {
-      $faculty = array('error' => array('text' => "Unknown faculty"));
+      $faculty = $this->error_data('Unknown faculty');
     }
 
     $this->echo_formatted_data($faculty, $return_type);
@@ -303,6 +314,74 @@ class V1_Controller extends Controller {
     $this->course_prereqs_by_result($result, $return_type);
   }
 
+  /**
+   * The schedule for the given course.
+   *
+   * endpoint: v1/course/<faculty acronym>/<course number>/schedule.<return type>
+   * @example v1/course/CS/135/schedule.json
+   */
+  private function course_schedule_by_number($faculty_acronym, $course_number, $return_type) {
+    $term = $this->get_term_input();
+
+    $db = $this->select_detailed_class_info(Database::instance('uwdata_schedule'));
+
+    $result = $db->
+      from('classes')->
+      where('faculty_acronym', $faculty_acronym)->
+      where('course_number', $course_number)->
+      where('term', $term)->
+      get();
+
+    $classes = array();
+    foreach ($result as $row) {
+      $classes []= array('class' => $row);
+    }
+
+    $this->echo_formatted_data(array('classes' => $classes), $return_type);
+  }
+
+  /**
+   * The schedule for the given course.
+   *
+   * endpoint: v1/course/<faculty acronym>/<course number>/schedule.<return type>
+   * @example v1/course/CS/135/schedule.json
+   */
+  private function course_schedule_by_id($course_id, $return_type) {
+    $term = $this->get_term_input();
+
+    $course_result = $this->fetch_course_by_id($course_id);
+    if (!empty($course_result)) {
+      $course = null;
+      foreach ($course_result as $row) {
+        $course = $row;
+      }
+      if ($course) {
+        $db = $this->select_detailed_class_info(Database::instance('uwdata_schedule'));
+
+        $result = $db->
+          from('classes')->
+          where('faculty_acronym', $course->faculty_acronym)->
+          where('course_number', $course->course_number)->
+          where('term', $term)->
+          get();
+
+        $classes = array();
+        foreach ($result as $row) {
+          $classes []= array('class' => $row);
+        }
+
+        $data = array('classes' => $classes);
+      } else {      
+        $data = $this->error_data('No course exists with this id');
+      }
+
+    } else {
+      $data = $this->error_data('No course exists with this id');
+    }
+
+    $this->echo_formatted_data($data, $return_type);
+  }
+
   //////////////////////////////////
   //////////////////////////////////
 
@@ -329,7 +408,7 @@ class V1_Controller extends Controller {
       }
 
     } else {
-      $result = array('error' => array('text' => "No professor exists with this id"));
+      $result = $this->error_data('No professor exists with this id');
     }
 
     $this->echo_formatted_data($result, $return_type);
@@ -388,7 +467,7 @@ class V1_Controller extends Controller {
       }
       $result = array('timeslots' => $result);
     } else {
-      $result = array('error' => array('text' => "No classes currently being held by this professor"));
+      $result = $this->error_data('No classes currently being held by this professor');
     }
 
     $this->echo_formatted_data($result, $return_type);
@@ -416,15 +495,15 @@ class V1_Controller extends Controller {
           $result = array('courses' => $result);
 
         } else {
-          $result = array('error' => array('text' => "No instructors found"));
+          $result = $this->error_data('No instructors found');
         }
 
       } else {
-        $result = array('error' => array('text' => "Illegal characters found in the query"));
+        $result = $this->error_data('Illegal characters found in the query');
       }
 
     } else {
-      $result = array('error' => array('text' => "Please provide a ?q=<query> expression."));
+      $result = $this->error_data('Please provide a ?q=<query> expression.');
     }
 
     $this->echo_formatted_data($result, $return_type);
@@ -535,6 +614,39 @@ class V1_Controller extends Controller {
   }
 
   /**
+   * Prime a db object with the necessary SELECT fields for a class.
+   */
+  private function select_detailed_class_info($db) {
+    $db->select(
+      'class_number',
+      'term',
+      'faculty_acronym',
+      'course_number',
+      'component_section',
+      'campus_location',
+      'associated_class',
+      'related_component_1',
+      'related_component_2',
+      'enrollment_cap',
+      'enrollment_total',
+      'wait_cap',
+      'wait_tot',
+      'tba_schedule',
+      'start_time',
+      'end_time',
+      'days',
+      'is_closed',
+      'is_canceled',
+      'building',
+      'room',
+      'instructor',
+      'instructor_id',
+      'note',
+      '__last_touched as last_updated');
+    return $db;
+  }
+
+  /**
    * Internal helper for course_by_number and course_by_id.
    * Handles the common code for retrieving the course object and outputting it.
    */
@@ -544,7 +656,7 @@ class V1_Controller extends Controller {
         $course = array('course' => $row);
       }
     } else {
-      $course = array('error' => array('text' => "Unknown course"));
+      $course = $this->error_data('Unknown course');
     }
 
     $this->echo_formatted_data($course, $return_type);
@@ -571,7 +683,7 @@ class V1_Controller extends Controller {
         );
       }
     } else {
-      $prereqs = array('error' => array('text' => "Unknown course"));
+      $prereqs = $this->error_data("Unknown course");
     }
 
     $this->echo_formatted_data($prereqs, $return_type);
@@ -690,6 +802,10 @@ class V1_Controller extends Controller {
     }
 
     return $term;
+  }
+
+  private function error_data($text) {
+    return array('error' => array('text' => $text));
   }
 
 }

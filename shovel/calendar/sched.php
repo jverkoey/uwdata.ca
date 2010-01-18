@@ -54,7 +54,7 @@ $col_keys = array(
   'instructor'
 );
 
-function munge_military_dates($format, $object) {
+function munge_military_dates($format, &$object) {
   if (preg_match('/([0-9]+):([0-9]+)-([0-9]+):([0-9]+)([A-Z]+)/', $format, $match)) {
     $military_start = intval($match[1].$match[2]);
     $military_end = intval($match[3].$match[4]);
@@ -69,6 +69,23 @@ function munge_military_dates($format, $object) {
     $object['end_time'] = $military_end;
     $object['days'] = $match[5];
     return true;
+
+  } else if ($format == '12:00-12:00') {  
+    // Do nothing.
+    return true;
+
+  } else if ($format == 'Closed Section') {
+    $object['is_closed'] = true;
+    return true;
+    
+  } else if ($format == 'Cancelled Section') {
+    $object['is_closed'] = true;
+    return true;
+
+  } else if ($format) {
+    echo "Unknown format.\n";
+    echo $format."\n";
+    exit;
   }
   return false;
 }
@@ -184,9 +201,7 @@ if (preg_match_all('/<OPTION VALUE="([A-Z]+)"(?: SELECTED)?>[A-Z]+/', $index_dat
           $reserve['term'] = $term_id;
           $reserve['class_number'] = $class['class_number'];
           if (isset($reserve['dates'])) {
-            if ($reserve['dates'] == 'Closed Section') {
-              $reserve['is_closed'] = true;
-            } else if (munge_military_dates($reserve['dates'], $reserve)) {
+            if (munge_military_dates($reserve['dates'], $reserve)) {
               // Do nothing.
               print_r($reserve);
             }
@@ -216,7 +231,8 @@ if (preg_match_all('/<OPTION VALUE="([A-Z]+)"(?: SELECTED)?>[A-Z]+/', $index_dat
       }
 
       $class['term'] = $term_id;
-
+      
+      print_r($class);
       $escaped_values = array();
       foreach (array_values($class) as $value) {
         $escaped_values []= '"'.mysql_escape_string($value).'"';

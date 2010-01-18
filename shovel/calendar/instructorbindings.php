@@ -29,9 +29,11 @@ while ($row = mysql_fetch_assoc($results)) {
   }
   $sql_params = array();
   foreach ($params as $key => $value) {
-    $sql_params []= $key.' LIKE "'.$value.'"';
+    $sql_params []= $key.' = "'.$value.'"';
   }
-  $search_results = $db->query('SELECT * FROM instructors WHERE '.implode(' AND ', $sql_params).';');
+  $sql = 'SELECT * FROM instructors WHERE '.implode(' AND ', $sql_params).';';
+  echo $sql."\n";
+  $search_results = $db->query($sql);
   
   $search_rows = array();
   while ($search_row = mysql_fetch_assoc($search_results)) {
