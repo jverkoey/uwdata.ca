@@ -45,8 +45,8 @@ class Signup_Controller extends Uwdata_Controller {
     return $this->send_email($email, 'Your uwdata API keys', <<<EMAIL
 <div style="font-family: arial,helvetica,clean,sans-serif">
 <h1 style="font-size:2em">Welcome to the UW Data developer program</h1>
-<p>In the meantime, you can <a href="http://uwdata.ca/account/validate/$validation_key">valid your
-email</a>.</p>
+<p>In the meantime, feel free to
+<a href="http://uwdata.ca/account/validate/$validation_key">validate your email</a>.</p>
 </div>
 EMAIL
     );
@@ -58,8 +58,8 @@ EMAIL
 <h1 style="font-size:2em">We'll keep you posted</h1>
 <p>Over the next few weeks we'll be rolling out uwdata for more and more people. As soon as the API
 is available for general users, you'll be one of the first to know!</p>
-<p>In the meantime, you can <a href="http://uwdata.ca/account/validate/$validation_key">valid your
-email</a>.</p>
+<p>In the meantime, feel free to
+<a href="http://uwdata.ca/account/validate/$validation_key">validate your email</a>.</p>
 </div>
 EMAIL
     );
