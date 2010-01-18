@@ -55,7 +55,9 @@
       Yet another project by <a href="http://JeffVerkoeyen.com/">Jeff Verkoeyen</a>.
     </div>
     <div class="attribution">
+<? if (!IN_PRODUCTION) { ?>
       Rendered in {execution_time} seconds, using {memory_usage} of memory.<br/>
+<? } ?>
       Source hosted on <a href="http://github.com/jverkoey/uwdata.ca">github</a>.<br/>
       Made with the <a href="http://kohanaphp.com/">Kohana</a> framework.
     </div>
