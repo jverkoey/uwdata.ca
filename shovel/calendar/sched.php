@@ -31,9 +31,21 @@ if (preg_match_all('/([0-9]+=[a-z]+ [0-9]+)/i', $index_data, $matches)) {
     $term_season = $parts[2];
     $term_year = $parts[3];
 
+    switch (strtolower($term_season)) {
+      case 'spring':
+      case 'winter': {
+        $calendar_years = (intval($term_year)-1).$term_year;
+        break;
+      }
+      case 'fall': {
+        $calendar_years = $term_year.(intval($term_year)+1);
+        break;
+      }
+    }
+
     $terms []= $term_id;
 
-    $sql = 'INSERT INTO terms(term_id, term_season, term_year) VALUES("'.$term_id.'", "'.$term_season.'", "'.$term_year.'") ON DUPLICATE KEY UPDATE term_season="'.$term_season.'", term_year="'.$term_year.'";';
+    $sql = 'INSERT INTO terms(term_id, term_season, term_year, calendar_years) VALUES("'.$term_id.'", "'.$term_season.'", "'.$term_year.'", "'.$calendar_years.'") ON DUPLICATE KEY UPDATE term_season="'.$term_season.'", term_year="'.$term_year.'", calendar_years="'.$calendar_years.'";';
     $db->query($sql);
   }
 }

@@ -349,7 +349,7 @@ class V1_Controller extends Controller {
   private function course_schedule_by_id($course_id, $return_type) {
     $term = $this->get_term_input();
 
-    $course_result = $this->fetch_course_by_id($course_id);
+    $course_result = $this->fetch_course_by_id($course_id, $this->get_calendar_years_from_term($term));
     if (!empty($course_result)) {
       $course = null;
       foreach ($course_result as $row) {
@@ -370,7 +370,12 @@ class V1_Controller extends Controller {
           $classes []= array('class' => $row);
         }
 
-        $data = array('classes' => $classes);
+        if (!empty($classes)) {
+          $data = array('classes' => $classes);
+        } else {
+          $data = $this->error_data('No classes this term');
+        }
+
       } else {      
         $data = $this->error_data('No course exists with this id');
       }
@@ -562,8 +567,8 @@ class V1_Controller extends Controller {
    * @param   $cid        The course id.
    * @return  The db result object.
    */
-  private function fetch_course_by_id($cid) {
-    $db = $this->select_detailed_course_info($this->get_db());
+  private function fetch_course_by_id($cid, $calendar_years = null) {
+    $db = $this->select_detailed_course_info($this->get_db($calendar_years));
 
     $result = $db->
       from('courses')->
@@ -710,8 +715,8 @@ class V1_Controller extends Controller {
     return $return_type;
   }
 
-  private function get_db() {
-    $cal_year = $this->input->get('cal', '20092010');
+  private function get_db($calendar_years = null) {
+    $cal_year = $calendar_years ? $calendar_years : $this->input->get('cal', '20092010');
     if (!ereg('^[0-9]+$', $cal_year)) {
       return null;
     }
@@ -802,6 +807,26 @@ class V1_Controller extends Controller {
     }
 
     return $term;
+  }
+
+  private function get_calendar_years_from_term($term) {
+    $db = Database::instance('uwdata_schedule');
+
+    $results = $db->
+      from('terms')->
+      select('calendar_years')->
+      where('term_id', $term)->
+      get();
+
+    $calendar_years = null;
+    if (count($results)) {
+      foreach ($results as $row) {
+        $calendar_years = $row->calendar_years;
+        break;
+      }
+    }
+
+    return $calendar_years;
   }
 
   private function error_data($text) {
