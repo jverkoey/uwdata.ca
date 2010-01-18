@@ -43,10 +43,11 @@ class Signup_Controller extends Uwdata_Controller {
 
   private function send_api_key_email($email, $validation_key) {
     return $this->send_email($email, 'Your uwdata API keys', <<<EMAIL
-<div style="font-family: arial,helvetica,clean,sans-serif">
-<h1 style="font-size:2em">Welcome to the UW Data developer program</h1>
+<div style="font-family: arial,helvetica,clean,sans-serif;color:#333">
+<h1 style="font-size:2em;color:#999">Welcome to the UW Data developer program</h1>
 <p>In the meantime, feel free to
 <a href="http://uwdata.ca/account/validate/$validation_key">validate your email</a>.</p>
+<p style="color: #999">- Jeff Verkoeyen</p>
 </div>
 EMAIL
     );
@@ -54,12 +55,13 @@ EMAIL
 
   private function send_coming_soon_email($email, $validation_key) {
     return $this->send_email($email, 'Thanks for your interest in uwdata', <<<EMAIL
-<div style="font-family: arial,helvetica,clean,sans-serif">
-<h1 style="font-size:2em">We'll keep you posted</h1>
+<div style="font-family: arial,helvetica,clean,sans-serif;color:#333">
+<h1 style="font-size:2em;color:#999">We'll keep you posted</h1>
 <p>Over the next few weeks we'll be rolling out uwdata for more and more people. As soon as the API
 is available for general users, you'll be one of the first to know!</p>
 <p>In the meantime, feel free to
 <a href="http://uwdata.ca/account/validate/$validation_key">validate your email</a>.</p>
+<p style="color: #999">- Jeff Verkoeyen</p>
 </div>
 EMAIL
     );
