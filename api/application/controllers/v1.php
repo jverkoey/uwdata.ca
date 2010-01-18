@@ -405,7 +405,7 @@ class V1_Controller extends Controller {
     if ($query) {
       $db = $this->select_detailed_course_info($this->get_db());
 
-      if (preg_match('/^([a-z]+)\s+([0-9]+[a-z]?)$/i', trim($query), $match)) {
+      if (preg_match('/^([a-z]+)\s*([0-9]+[a-z]?)$/i', trim($query), $match)) {
         // They're searching for a specific course.
         $faculty_acronym = $match[1];
         $course_number = $match[2];

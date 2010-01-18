@@ -34,7 +34,7 @@
 #footer .copyright {
   float: right;
   padding: 10px;
-  width: 220px;
+  width: 250px;
   color: #777;
 }
 
@@ -96,14 +96,30 @@
 
 #pageheader li {
   float: left;
-  padding: 20px 10px;
+  padding: 20px 0px;
+  padding-left: 10px;
   font-size: 1.5em;
 }
 
 #pageheader li a {
-  color: #FFF;
-  background-color: transparent;
-  text-shadow: 1px 1px 1px #993300;
+  color: #999;
+  background-color: #333;
+  padding: 5px;
+  text-shadow: -1px -1px 0px #111;
+}
+
+#pageheader li a:hover {
+  background-color: #555;
+}
+
+#pageheader li a.standout {
+  background-color: #7C7;
+  color: #000;
+  text-shadow: none;
+}
+
+#pageheader li a.standout:hover {
+  background-color: #9E9;
 }
 
 .fixedwidth {
@@ -251,6 +267,7 @@ input:focus {
 
 #search h2 {
   text-align: center;
+  font-size: 2em;
 }
 
 #search .results .course .course_number {
@@ -274,6 +291,13 @@ input:focus {
 
 #search .results .course .description {
   font-size: 1.2em;
+  color: #333;
+  margin-bottom: 10px;
+  text-shadow: 1px 1px 0px #FFF;
+}
+
+#search .results .course .notes {
+  font-size: 1em;
   color: #333;
   margin-bottom: 10px;
   text-shadow: 1px 1px 0px #FFF;

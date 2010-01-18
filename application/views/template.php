@@ -13,6 +13,10 @@
 <div id="pageheader">
   <div class="fixedwidth">
     <div class="title"><a href="/"><span class="uwcolor">uw</span>data<span class="subtitle">.ca</span></a></div>
+    <ul>
+      <li><a href="/learnmore">Learn more</a></li>
+      <li><a href="/signup" class="standout">Get an API key</a></li>
+    </ul>
   </div>
 </div>
 <div id="pageheadershadow"></div>
@@ -42,7 +46,8 @@
   <div class="fixedwidth">
     <div class="copyright">
       © Copyright 2010<br/>All content licensed under the <a href="http://www.apache.org/licenses/LICENSE-2.0">Apache License</a>, unless otherwise noted.<br/><br/>
-      All data is gathered from the University of Waterloo's public information sets.
+      All data is gathered from the University of Waterloo's public information sets.<br/><br/>
+      Yet another project by <a href="http://JeffVerkoeyen.com/">Jeff Verkoeyen</a>.
     </div>
     <div class="attribution">
       Rendered in {execution_time} seconds, using {memory_usage} of memory.<br/>

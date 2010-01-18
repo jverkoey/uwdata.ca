@@ -2,12 +2,17 @@
 String.prototype.endsWith = function(str) 
 {return (this.match(str+"$")==str)}
 
+/**
+ * Welcome to clown town. This is hacked together for the demo, so you best be not
+ * basin' any more code on this garbage.
+ */
 function is_lighter_word(word) {
   var light_words = [
     'the',
     'of',
     'and',
     'for',
+    'ii',
     '-',
     'in',
     'to',
@@ -105,6 +110,31 @@ $(function() {
                 $('<div>')
                 .addClass('description')
                 .append(course.description)
+              )
+              .append(
+                $('<div>')
+                .addClass('notes')
+                .append(course.crosslist_desc)
+              )
+              .append(
+                $('<div>')
+                .addClass('notes')
+                .append(course.prereq_desc)
+              )
+              .append(
+                $('<div>')
+                .addClass('notes')
+                .append(course.antireq_desc)
+              )
+              .append(
+                $('<div>')
+                .addClass('notes')
+                .append(course.coreq_desc)
+              )
+              .append(
+                $('<div>')
+                .addClass('notes')
+                .append(course.note_desc)
               )
             );
           }
