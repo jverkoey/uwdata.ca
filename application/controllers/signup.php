@@ -47,7 +47,9 @@ class Signup_Controller extends Uwdata_Controller {
 <h1 style="font-size:2em;color:#999">Welcome to the UW Data developer program</h1>
 <p>Your public API key: $public_key<br/>
 Your private API key: $private_key</p>
-<p>In the meantime, feel free to
+<p>Keep this email around or save these keys somewhere. If you do lose the keys you'll be
+able to request your API keys again from uwdata.ca.</p>
+<p>Before you can use these keys you'll need to
 <a href="http://uwdata.ca/account/validate/$validation_key">validate your email</a>.</p>
 <p style="color: #999">- Jeff Verkoeyen</p>
 </div>
@@ -69,8 +71,8 @@ EMAIL
     );
   }
 
-  private function getUniqueCode($length = "") {	
-  	$code = md5(uniqid(rand(), true));
+  private function getUniqueCode($salt, $length = "") {	
+  	$code = md5(uniqid(rand(), true).$salt.'uwdatumz');
   	if ($length != "") return substr($code, 0, $length);
   	else return $code;
   }
@@ -94,12 +96,12 @@ EMAIL
         
 
       } else {
-        $validation_key = $this->getUniqueCode(50);
+        $validation_key = $this->getUniqueCode($email, 50);
 
         // What kind of email address is it?
         if (eregi('@([a-z0-9]+\.)*uwaterloo\.ca$', $email)) {
-          $public_api_key = $this->getUniqueCode(50);
-          $private_api_key = $this->getUniqueCode(50);
+          $public_api_key = $this->getUniqueCode($salt, 50);
+          $private_api_key = $this->getUniqueCode($salt, 50);
           $successfully_sent_email = $this->send_api_key_email(
             $email, $validation_key, $public_api_key, $private_api_key);
 
