@@ -7,6 +7,8 @@
  */
 class V1_Controller extends Controller {
 
+	const ALLOW_PRODUCTION = TRUE;
+
   /**
    * Possible endpoints:
    *   v1/faculty/list.<return type>

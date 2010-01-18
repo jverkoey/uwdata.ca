@@ -7,9 +7,7 @@
  */
 class Welcome_Controller extends Controller {
 
-	// Disable this controller when Kohana is set to production mode.
-	// See http://docs.kohanaphp.com/installation/deployment for more details.
-	const ALLOW_PRODUCTION = FALSE;
+	const ALLOW_PRODUCTION = TRUE;
 
 	public function index() {
 		$profiler = new Profiler;
