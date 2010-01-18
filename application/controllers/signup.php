@@ -107,7 +107,7 @@ EMAIL
         if ($successfully_sent_email) {
           $values['last_emailed_timestamp'] = 'CURRENT_TIMESTAMP';
         }
-        $result_set = $db->insert('email_users', $values);
+        $db->insert('email_users', $values);
       }
 
     } else {
