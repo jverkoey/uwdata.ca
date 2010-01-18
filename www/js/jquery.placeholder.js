@@ -16,7 +16,7 @@ new function($) {
         var className = settings.className || "placeholder";
         var values = settings.values || [];
         var block = settings.blockSubmit || false;
-        var blank = settings.blankSubmit || false;
+        var blank = settings.blankSubmit || true;
         var submit = settings.onSubmit || false;
         var value = settings.value || "";
         var position = settings.cursor_position || 0;

@@ -1,0 +1,31 @@
+
+
+#signup_form {
+  text-align: center;
+}
+
+#signup_form input {
+  font-size: 2em;
+  border: 1px solid #999;
+  padding: 3px;
+  margin: 0;
+}
+
+#signup_form .submit_button {
+  background-color: #7C7;
+  color: #333;
+}
+
+#signup_form .submit_button:hover {
+  background-color: #9E9;
+  cursor: pointer;
+}
+
+#form_error {
+  text-align: center;
+  font-size: 1.5em;
+  color: #333;
+  background-color: #C77;
+  margin: 10px;
+  padding: 10px;
+}

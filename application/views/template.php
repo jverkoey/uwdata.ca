@@ -5,7 +5,10 @@
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
   <title><?php echo html::specialchars($title) ?></title>
-  <? echo html::stylesheet(array('css/reset', 'css/common'), array('screen', 'screen'), FALSE); ?>
+<?
+  echo html::stylesheet(array('css/reset', 'css/common'), null, FALSE);
+  echo html::stylesheet($css_files, null, FALSE);
+?>
 </head>
 <body>
 <div id="page-wrapper">
@@ -16,7 +19,7 @@
 <? if (!IN_PRODUCTION) { ?>
     <ul>
       <li><a href="/learnmore">Learn more</a></li>
-      <li><a href="/signup" class="standout">Get an API key</a></li>
+      <li><a href="/signup" class="standout">Request an API key</a></li>
     </ul>
 <? } ?>
   </div>

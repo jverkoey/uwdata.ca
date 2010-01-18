@@ -1,12 +1,9 @@
 <?php defined('SYSPATH') OR die('No direct access allowed.');
 /**
- * Default Kohana controller. This controller should NOT be used in production.
- * It is for demonstration purposes only!
- *
- * @package    Core
- * @author     Kohana Team
- * @copyright  (c) 2007-2008 Kohana Team
- * @license    http://kohanaphp.com/license.html
+ * @package    uwdata
+ * @author     Jeff Verkoeyen
+ * @copyright  (c) 2010 Jeff Verkoeyen
+ * @license    http://www.apache.org/licenses/LICENSE-2.0
  */
 class Welcome_Controller extends Controller {
 
