@@ -405,7 +405,30 @@ class V1_Controller extends Controller {
     if ($query) {
       $db = $this->select_detailed_course_info($this->get_db());
 
-      if (eregi('^[a-z\'" \-]+$', $query)) {
+      if (preg_match('/^([a-z]+)\s+([0-9]+[a-z]?)$/i', trim($query), $match)) {
+        // They're searching for a specific course.
+        $faculty_acronym = $match[1];
+        $course_number = $match[2];
+        $course_result = $this->fetch_course_by_number($faculty_acronym, $course_number, $return_type);
+
+        if (count($course_result)) {
+          $course = null;
+          foreach ($course_result as $row) {
+            $course = $row;
+          }
+          $result = array(
+            'page_index' => 0,
+            'results_per_page' => 1,
+            'page_result_count' => 1,
+            'total_result_count' => 1,
+            'courses' => array(array('course' => $course))
+          );
+
+        } else {  
+          $result = $this->error_data('No courses found');
+        }
+
+      } else if (eregi('^[a-z0-9\'" \-]+$', $query)) {
         $perpage = $this->input->get('perpage', '10');
         $page = $this->input->get('page', '0');
         if (ereg('^[0-9]+$', $perpage) && ereg('^[0-9]+$', $page)) {
@@ -818,7 +841,7 @@ class V1_Controller extends Controller {
   //////////////////////////////////
 
   private function init_action(&$param1, &$param2, &$param3) {
-		$profiler = new Profiler;
+    //$profiler = new Profiler;
 
     if ($param3) {
       list($param3, $return_type) = $this->action_info($param3);
@@ -872,11 +895,22 @@ class V1_Controller extends Controller {
 
     switch (strtolower($datatype)) {
       case 'json': {
-        echo json_encode($data);
+        header('Content-type: application/json');
+
+        $json = json_encode($data);
+
+        $callback = $this->input->get('jsonp_callback');
+        if ($callback) {
+          echo $callback.'('.$json.');';
+        } else {
+          echo $json;
+        }
         break;
       }
 
       case 'xml': {
+        header('Content-type: application/xml');
+
   		  $xml = '<?xml version="1.0" encoding="UTF-8"?><result></result>';
     		$xml = simplexml_load_string($xml);
 

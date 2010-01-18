@@ -8,19 +8,16 @@
  * @copyright  (c) 2007-2008 Kohana Team
  * @license    http://kohanaphp.com/license.html
  */
-class Welcome_Controller extends Template_Controller {
+class Welcome_Controller extends Uwdata_Controller {
 
-	// Disable this controller when Kohana is set to production mode.
-	// See http://docs.kohanaphp.com/installation/deployment for more details.
-	const ALLOW_PRODUCTION = FALSE;
+	const ALLOW_PRODUCTION = TRUE;
 
-	// Set the name of the template to use
-	public $template = 'template';
-	public $auto_render = FALSE;
-
-	public function index()
-	{
+	public function index() {
 		$profiler = new Profiler;
+
+    $this->add_js_foot_file('js/jquery-1.4.min.js');
+    $this->add_js_foot_file('js/jquery.placeholder.js');
+    $this->add_js_foot_file('js/demo.js');
 
 		$content = new View('welcome_content');
 

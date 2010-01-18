@@ -2,7 +2,7 @@
 #page-wrapper {
   height: auto !important;
   min-height: 100%;
-  margin: 0 0 -200px;
+  margin: 0 0 -225px;
 
   background-color: #0A0404;
   color: #FFF;
@@ -18,14 +18,14 @@
  */
 
 #page-footer {
-  height: 200px;
+  height: 225px;
 }
 
 #footer {
   clear: both;
   background-color: #333;
   color: #FFF;
-  height: 175px;
+  height: 200px;
   position: relative;
   border-top: 5px dashed #000;
   margin-top: 20px;
@@ -34,7 +34,7 @@
 #footer .copyright {
   float: right;
   padding: 10px;
-  width: 200px;
+  width: 220px;
   color: #777;
 }
 
@@ -137,13 +137,14 @@
 }
 
 #content-frame {
-  padding: 10px;
+  padding: 0 10px;
+  /*border: 10px solid #CCC;*/
   background-image: url('/gfx/contentedges.png');
 }
 
 #content {
-  background-color: #FFFFFF;
   color: #000000;
+  background-color: #EEE;
   padding: 10px;
 }
 
@@ -152,26 +153,23 @@
 }
 
 #content h1 {
-  font-size: 2em;
-  border-bottom: 5px solid #ddd;
-  color: #333;
+  font-size: 5em;
+  color: #999;
   margin-bottom: 10px;
-  text-shadow: -1px -1px 1px #fff;
+  text-shadow: 1px 1px 0px #FFF;
 }
 
 #content h2 {
-  font-size: 1.7em;
-  border-bottom: 3px solid #ddd;
-  color: #666;
+  font-size: 2.2em;
+  color: #999;
   margin-bottom: 10px;
-  text-shadow: -1px -1px 1px #fff;
+  text-shadow: 1px 1px 0px #FFF;
 }
 
 #content h3 {
   font-size: 1.5em;
   color: #666;
-  margin-bottom: 10px;
-  text-shadow: -1px -1px 1px #fff;
+  text-shadow: 1px 1px 0px #FFF;
 }
 
 #content .source {
@@ -181,13 +179,14 @@
   margin-bottom: 10px;
 }
 
-#content p {
+#content p,
+#content center {
   font-size: 1.3em;
   margin-bottom: 20px;
   line-height: 1.7em;
-  text-shadow: -1px -1px 1px #fff;
+  text-shadow: 1px 1px 0px #DDD;
   font-family: "Trebuchet MS",Arial,Helvetica,sans-serif;
-  color: #111;
+  color: #333;
 }
 
 #content .big-emphasis {
@@ -220,6 +219,62 @@ strong {
   font-weight: bold;
 }
 
+em {
+  color: #333;
+  text-shadow: 1px 1px 0px #BBB;
+}
+
 #kohana-profiler {
   overflow: auto;
+}
+
+input {
+  color: #AAA;
+}
+
+input:focus {
+  color: #333;
+}
+
+/**
+ TODO: Move to separate css file.
+ */
+.pitch {
+  text-align: center;
+  font-size: 1.3em;
+}
+
+.big_form {
+  font-size: 1.3em;
+  margin-bottom: 10px;
+}
+
+#search h2 {
+  text-align: center;
+}
+
+#search .results .course .course_number {
+  font-size: 4em;
+  color: #999;
+  margin-bottom: -5px;
+  text-shadow: 1px 1px 0px #FFF;
+}
+
+#search .results .course .title {
+  font-size: 2em;
+  color: #999;
+  margin-bottom: 10px;
+  text-shadow: none;
+}
+
+#search .results .course .title em {
+  color: #333;
+  text-shadow: none;
+}
+
+#search .results .course .description {
+  font-size: 1.2em;
+  color: #333;
+  margin-bottom: 10px;
+  text-shadow: 1px 1px 0px #FFF;
 }

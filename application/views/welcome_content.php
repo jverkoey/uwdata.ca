@@ -1,7 +1,23 @@
 <?php defined('SYSPATH') OR die('No direct access allowed.'); ?>
-<span class="big-emphasis">Stop scraping!</span> The University of Waterloo data API is now live
-and <strong>you are in control</strong>.
+Stop scraping. <em>Start building.</em>
+=======================================
 
-<center><span class="big-emphasis">So what can this API do?</span></center>
+<div class="pitch" markdown="1">
 
+The University of Waterloo's public data now available through a RESTful API.
 
+Go ahead, give it a try.
+------------------------
+
+<div class="big_form">
+<input type="text" id="course_search" placeholder="Search for courses" autocomplete="off" />
+</div>
+</div>
+
+<div id="search" style="display: none" markdown="1">
+Search Results
+--------------
+<div class="results">
+</div>
+
+</div>

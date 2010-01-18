@@ -40,14 +40,19 @@
 
 <div id="footer">
   <div class="fixedwidth">
-  <div class="copyright">© Copyright 2009<br/>All content licensed under the <a href="http://www.apache.org/licenses/LICENSE-2.0">Apache License</a> unless otherwise noted.</div>
-  <div class="attribution">
-    Rendered in {execution_time} seconds, using {memory_usage} of memory.<br/>
-    Source hosted on <a href="http://github.com/jverkoey/uwdata.ca">github</a>.<br/>
-    Made with the <a href="http://kohanaphp.com/">Kohana</a> framework.
-  </div>
+    <div class="copyright">
+      © Copyright 2010<br/>All content licensed under the <a href="http://www.apache.org/licenses/LICENSE-2.0">Apache License</a>, unless otherwise noted.<br/><br/>
+      All data is gathered from the University of Waterloo's public information sets.
+    </div>
+    <div class="attribution">
+      Rendered in {execution_time} seconds, using {memory_usage} of memory.<br/>
+      Source hosted on <a href="http://github.com/jverkoey/uwdata.ca">github</a>.<br/>
+      Made with the <a href="http://kohanaphp.com/">Kohana</a> framework.
+    </div>
   </div>
 </div>
+
+<? echo html::script($js_foot_files, FALSE); ?>
 
 </body>
 </html>
