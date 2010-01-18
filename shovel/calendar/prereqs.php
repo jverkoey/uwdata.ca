@@ -156,7 +156,7 @@ function parse_part($part) {
           }
           $new_word_type = WORD_TYPE_FACULTY;
 
-        } else if (ereg('^[0-9]{2,}[A-Z]?$', $word_buffer)) {
+        } else if (ereg('^[0-9]{2,}[A-Z]?$', $word_buffer) && $letter != '%') {
           foreach ((array)$last_faculty as $faculty) {
             //echo 'found a course: '.$faculty.' '.$word_buffer."\n";
             $course_group []= new course($faculty, $word_buffer);
