@@ -41,22 +41,34 @@ class Signup_Controller extends Uwdata_Controller {
     return $succeeded;
   }
 
-  private function send_api_key_email($email) {
+  private function send_api_key_email($email, $validation_key) {
     return $this->send_email($email, 'Your uwdata API keys', <<<EMAIL
 <div style="font-family: arial,helvetica,clean,sans-serif">
-<h1>Welcome to the UW Data developer program!</h1>
+<h1 style="font-size:2em">Welcome to the UW Data developer program</h1>
+<p>In the meantime, you can <a href="http://uwdata.ca/account/validate/$validation_key">valid your
+email</a>.</p>
 </div>
 EMAIL
     );
   }
 
-  private function send_coming_soon_email($email) {
-    return $this->send_email($email, 'Thanks for signing up!', <<<EMAIL
+  private function send_coming_soon_email($email, $validation_key) {
+    return $this->send_email($email, 'Thanks for your interest in uwdata', <<<EMAIL
 <div style="font-family: arial,helvetica,clean,sans-serif">
-<h1>Thanks for your interest in the UW Data developer program!</h1>
+<h1 style="font-size:2em">We'll keep you posted</h1>
+<p>Over the next few weeks we'll be rolling out uwdata for more and more people. As soon as the API
+is available for general users, you'll be one of the first to know!</p>
+<p>In the meantime, you can <a href="http://uwdata.ca/account/validate/$validation_key">valid your
+email</a>.</p>
 </div>
 EMAIL
     );
+  }
+
+  private function getUniqueCode($length = "") {	
+  	$code = md5(uniqid(rand(), true));
+  	if ($length != "") return substr($code, 0, $length);
+  	else return $code;
   }
 
   public function request() {
@@ -78,18 +90,24 @@ EMAIL
         
 
       } else {
+        $validation_key = $this->getUniqueCode(50);
+        
         // What kind of email address is it?
         if (eregi('@([a-z0-9]+\.)*uwaterloo\.ca$', $email)) {
-          $this->send_api_key_email($email);
+          $successfully_sent_email = $this->send_api_key_email($email, $validation_key);
 
         } else {
-          $this->send_coming_soon_email($email);
+          $successfully_sent_email = $this->send_coming_soon_email($email, $validation_key);
         }
-/*
-        $result_set = $db->
-          insert('email_users', array(
-            'email' => $email
-          ));*/
+
+        $values = array(
+          'email' => $email,
+          'validation_key' => $validation_key
+        );
+        if ($successfully_sent_email) {
+          $values['last_emailed_timestamp'] = 'CURRENT_TIMESTAMP';
+        }
+        $result_set = $db->insert('email_users', $values);
       }
 
     } else {
