@@ -10,7 +10,9 @@ class Signup_Controller extends Uwdata_Controller {
 	const ALLOW_PRODUCTION = TRUE;
 
 	public function index() {
-		$profiler = new Profiler;
+	  if (IN_PRODUCTION) {
+		  $profiler = new Profiler;
+		}
 
     $content = $this->get_signup_content_view();
 

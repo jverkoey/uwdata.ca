@@ -10,7 +10,9 @@ class Welcome_Controller extends Uwdata_Controller {
 	const ALLOW_PRODUCTION = TRUE;
 
 	public function index() {
-		$profiler = new Profiler;
+	  if (IN_PRODUCTION) {
+		  $profiler = new Profiler;
+		}
 
     $this->add_js_foot_file('js/jquery-1.4.min.js');
     $this->add_js_foot_file('js/jquery.placeholder.js');
