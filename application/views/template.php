@@ -61,11 +61,12 @@
 <? } ?>
       Source hosted on <a href="http://github.com/jverkoey/uwdata.ca">github</a>.<br/>
       Made with the <a href="http://kohanaphp.com/">Kohana</a> framework.
+
+      <img src="/gfx/uwlogo.gif" style="display:none" />
+
     </div>
   </div>
 </div>
-
-<img src="/gfx/uwlogo.gif" style="display:none" />
 
 <? echo html::script($js_foot_files, FALSE); ?>
 
