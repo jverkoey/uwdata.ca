@@ -901,7 +901,7 @@ class V1_Controller extends Controller {
 
     $db = Database::instance('uwdata');
     $email_users_set = $db->
-      select('email_users.is_validated')->
+      select('email_users.is_validated', 'user_details.is_disabled')->
       from('email_users')->
       join('user_details', array('email_users.user_id' => 'user_details.id'))->
       where('user_details.public_api_key', $api_key)->
@@ -933,6 +933,10 @@ class V1_Controller extends Controller {
     }
     if (!$email_user->is_validated) {
       $this->echo_formatted_data($this->error_data("The given API key is not activated. Please activate your account at uwdata.ca before issuing further requests."), $return_type);
+      return null;
+    }
+    if (!$email_user->is_disabled) {
+      $this->echo_formatted_data($this->error_data("The given API key has been disabled. If you feel like this is a mistake, please contact us at accounts@uwdata.ca"), $return_type);
       return null;
     }
 
