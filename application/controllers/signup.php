@@ -152,8 +152,8 @@ EMAIL
 
         // What kind of email address is it?
         if (eregi('@([a-z0-9]+\.)*uwaterloo\.ca$', $email)) {
-          $public_api_key = $this->getUniqueCode($salt, 32);
-          $private_api_key = $this->getUniqueCode($salt, 32);
+          $public_api_key = $this->getUniqueCode($email, 32);
+          $private_api_key = $this->getUniqueCode($email, 32);
           $successfully_sent_email = $this->send_api_key_email(
             $email, $validation_key, $public_api_key, $private_api_key);
 
