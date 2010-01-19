@@ -190,7 +190,6 @@ if (preg_match_all('/<OPTION VALUE="([A-Z]+)"(?: SELECTED)?>[A-Z]+/', $index_dat
     unset($html);
 
     foreach ($classes as $class) {
-      print_r($class);
       if (preg_match('/([A-Z]+) +([0-9A-Z]+)/', $class['location'], $match)) {
         $class['building'] = $match[1];
         $class['room'] = $match[2];
@@ -216,7 +215,6 @@ if (preg_match_all('/<OPTION VALUE="([A-Z]+)"(?: SELECTED)?>[A-Z]+/', $index_dat
           if (isset($reserve['dates'])) {
             if (munge_military_dates($reserve['dates'], $reserve)) {
               // Do nothing.
-              print_r($reserve);
             }
             unset($reserve['dates']);
           }
@@ -244,8 +242,7 @@ if (preg_match_all('/<OPTION VALUE="([A-Z]+)"(?: SELECTED)?>[A-Z]+/', $index_dat
       }
 
       $class['term'] = $term_id;
-      
-      print_r($class);
+
       $escaped_values = array();
       foreach (array_values($class) as $value) {
         $escaped_values []= '"'.mysql_escape_string($value).'"';
