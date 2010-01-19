@@ -42,7 +42,7 @@ $(function() {
 
     $.ajax({
       dataType: 'jsonp',
-      data: {q: query},
+      data: {q: query, key: '6a43bfb883aeeff0d72c895e09425538'},
       jsonp: 'jsonp_callback',
       url: 'http://dev.api.uwdata.ca/v1/course/search.json',
       success: function(data) {
