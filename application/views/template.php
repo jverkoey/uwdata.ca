@@ -19,7 +19,7 @@
   <div class="fixedwidth">
     <div class="title"><a href="/"><span class="uwcolor">uw</span>data<span class="subtitle">.ca</span></a></div>
     <ul>
-      <li><a href="/contribute">Want to contribute?</a></li>
+      <li><a href="/contribute">Contribute</a></li>
       <li><a href="/learnmore">Learn more</a></li>
       <li><a href="/signup" class="standout">Request an API key</a></li>
     </ul>
@@ -60,7 +60,8 @@
       Rendered in {execution_time} seconds, using {memory_usage} of memory.<br/>
 <? } ?>
       Source hosted on <a href="http://github.com/jverkoey/uwdata.ca">github</a>.<br/>
-      Made with the <a href="http://kohanaphp.com/">Kohana</a> framework.
+      Made with the <a href="http://kohanaphp.com/">Kohana</a> framework.<br/><br/>
+      <a href='http://www.pledgie.com/campaigns/8091'><img alt='Click here to lend your support to: uwdata.ca server costs and make a donation at www.pledgie.com !' src='http://www.pledgie.com/campaigns/8091.png?skin_name=chrome' border='0' /></a>
     </div>
   </div>
 </div>
