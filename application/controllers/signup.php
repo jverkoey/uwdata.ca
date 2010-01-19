@@ -96,12 +96,12 @@ EMAIL
         
 
       } else {
-        $validation_key = $this->getUniqueCode($email, 50);
+        $validation_key = $this->getUniqueCode($email, 32);
 
         // What kind of email address is it?
         if (eregi('@([a-z0-9]+\.)*uwaterloo\.ca$', $email)) {
-          $public_api_key = $this->getUniqueCode($salt, 50);
-          $private_api_key = $this->getUniqueCode($salt, 50);
+          $public_api_key = $this->getUniqueCode($salt, 32);
+          $private_api_key = $this->getUniqueCode($salt, 32);
           $successfully_sent_email = $this->send_api_key_email(
             $email, $validation_key, $public_api_key, $private_api_key);
 
@@ -145,13 +145,6 @@ EMAIL
 		$this->template->title = 'Get an API key | uwdata.ca';
 
     return $content;
-  }
-
-  private function render_markdown_template($content) {
-		require Kohana::find_file('vendor', 'Markdown');
-    $this->template->content = $content->render(FALSE, 'Markdown');
-
-    $this->template->render(TRUE);
   }
 
 } // End Welcome Controller

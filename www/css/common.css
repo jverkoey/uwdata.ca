@@ -164,7 +164,12 @@
 }
 
 #content a {
-  border-bottom: 1px dashed #f93;
+  text-decoration: none;
+  color: #056978;
+}
+
+#content a:hover {
+  text-decoration: underline;
 }
 
 #content h1 {

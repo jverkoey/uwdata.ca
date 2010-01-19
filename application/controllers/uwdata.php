@@ -29,4 +29,12 @@ class Uwdata_Controller extends Template_Controller {
   protected function add_css_file($file) {
     $this->template->css_files []= $file;
   }
+
+  protected function render_markdown_template($content) {
+		require Kohana::find_file('vendor', 'Markdown');
+    $this->template->content = $content->render(FALSE, 'Markdown');
+
+    $this->template->render(TRUE);
+  }
+
 }
