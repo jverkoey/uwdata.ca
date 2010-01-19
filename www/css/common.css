@@ -274,6 +274,10 @@ input:focus {
   font-size: 1.3em;
 }
 
+#content .pitch ul li {
+  list-style-type: none;
+}
+
 .big_form {
   font-size: 1.3em;
   margin-bottom: 10px;
