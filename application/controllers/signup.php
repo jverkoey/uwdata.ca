@@ -217,7 +217,7 @@ EMAIL
 
 		$content = new View('signup_content');
 
-    $this->prepend_title("Get an API key");
+    $this->prepend_title("Request an API key");
 
     return $content;
   }
