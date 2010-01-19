@@ -11,18 +11,36 @@ Version 1 of the uwdata API covers the following data sets:
 
 The API is accessed via a set of URLs that are outlined below.
 
+<div class="blocks">
+<div class="block" markdown="1">
+### Faculties
+
+* [Faculty List](#faculty_list)
+* [Faculty Information](#faculty_by_id)
+</div>
+
+<div class="block" markdown="1">
+### Faculties
+
+* [Faculty List](#faculty_list)
+* [Faculty Information](#faculty_by_id)
+</div>
+
+</div>
+<div class="clearfix"></div>
+
 API Version 1
 -------------
 
-### v1/faculty/list.[xml|json]
+### v1/faculty/list.[xml|json] {#faculty_list}
 
-A list of all faculties in the school.
+A list of all faculties in the school for any given year.
 
 #### Optional parameters:
 
 * `cal` The calendar years to check. Default: the latest calendar year. Example: `&cal=20072008`.
 
-#### Example JSON result:
+#### Example JSON response for [/v1/faculty/list.json](http://api.uwdata.ca/v1/faculty/list.json):
     {
        faculties: [
           {
@@ -47,9 +65,7 @@ A list of all faculties in the school.
        ]
     }
 
-
-
-#### Example XML response:
+#### Example XML response for [/v1/faculty/list.xml](http://api.uwdata.ca/v1/faculty/list.xml):
 
     <?= '<?xml version="1.0" encoding="UTF-8"?>'."\n" ?>
     <result>
@@ -60,14 +76,8 @@ A list of all faculties in the school.
         </faculty>
         <faculty>
           <acronym>HLTH</acronym>
-
           <name>Health Studies</name>
         </faculty>
-        <faculty>
-          <acronym>KIN</acronym>
-          <name>Kinesiology</name>
-        </faculty>
-        <faculty>
     ...
         <faculty>
           <acronym>SCBUS</acronym>
@@ -76,5 +86,35 @@ A list of all faculties in the school.
       </faculties>
     </result>
 
+### v1/faculty/[faculty acronym].[xml|json] {#faculty_by_id}
+
+Detailed information about the given faculty for any given year.
+
+#### Optional parameters:
+
+* `cal` The calendar years to check. Default: the latest calendar year. Example: `&cal=20072008`.
+
+#### Example JSON response for [/v1/faculty/CS.json](http://api.uwdata.ca/v1/faculty/CS.json):
+
+    {
+       faculty: {
+          acronym: 'CS',
+          name: 'Computer Science',
+          last_updated: '2010-01-19 05:01:59'
+       }
+    }
+
+#### Example XML response for [/v1/faculty/CS.xml](http://api.uwdata.ca/v1/faculty/CS.xml):
+
+    <?= '<?xml version="1.0" encoding="UTF-8"?>'."\n" ?>
+    <result>
+      <faculty>
+        <acronym>CS</acronym>
+        <name>Computer Science</name>
+        <last_updated>2010-01-19 05:01:59</last_updated>
+      </faculty>
+    </result>
+
 
 [^1]: Real time here means once an hour, between the hours of 8am and 8pm.
+

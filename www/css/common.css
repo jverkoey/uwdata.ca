@@ -336,4 +336,5 @@ input:focus {
   background-color: #FFF;
   margin-bottom: 10px;
   font-family: Consolas,Monaco,Lucida Console,Liberation Mono,DejaVu Sans Mono,Bitstream Vera Sans Mono,Courier New;
+  line-height: 1.5em;
 }

@@ -11,3 +11,8 @@
   background-color: #DDD;
   padding: 5px;
 }
+
+.blocks .block {
+  float: left;
+  margin-right: 10px;
+}
