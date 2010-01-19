@@ -7,6 +7,8 @@ include_once COMMON_PATH.'scraper_tools.php';
 include_once COMMON_PATH.'simple_html_dom.php';
 include_once COMMON_PATH.'Database.class.php';
 
+define('LONG_CACHE_EXPIRY_TIMESPAN', 60*60*24*7*2);
+
 if( sizeof($argv) < 2 ) {
   $calendar_years = '20092010';
 } else {
@@ -52,7 +54,7 @@ if (0 === strpos($calendar_url, 'http://www.ucalendar')) {
 // First, let's hit the UW course calendar web page and see which year we're currently looking at.
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 if ($is_old_calendar) {
-  $course_cal_data = fetch_url($calendar_url);
+  $course_cal_data = fetch_url($calendar_url, LONG_CACHE_EXPIRY_TIMESPAN);
 
   if (!$course_cal_data) {
     echo 'Failed to grab the course calendar data from '.$calendar_url."\n";
@@ -75,7 +77,7 @@ if ($is_old_calendar) {
   }
 
 } else {
-  $course_cal_data = fetch_url(COURSE_CAL_ROOT_URL);
+  $course_cal_data = fetch_url(COURSE_CAL_ROOT_URL, LONG_CACHE_EXPIRY_TIMESPAN);
 
   if (!$course_cal_data) {
     echo 'Failed to grab the course calendar data from '.COURSE_CAL_ROOT_URL."\n";
@@ -143,7 +145,7 @@ foreach ($linkElms as $e) {
 $faculties = array();
 
 foreach ($links as $title => $url) {
-  $data = fetch_url($url);
+  $data = fetch_url($url, LONG_CACHE_EXPIRY_TIMESPAN);
 
   if (!$data) {
     echo 'Failed to grab the url data from '.$url."\n";
@@ -166,7 +168,7 @@ foreach ($links as $title => $url) {
 
         $faculty_url = dirname($url).'/'.$anchor->href;
 
-        $faculty_data = fetch_url($faculty_url);
+        $faculty_data = fetch_url($faculty_url, LONG_CACHE_EXPIRY_TIMESPAN);
 
         if (!$faculty_data) {
           echo 'Failed to grab the url data from '.$faculty_url."\n";
@@ -214,7 +216,7 @@ foreach ($links as $title => $url) {
       continue;
     }
 
-    $data = fetch_url($courses_url);
+    $data = fetch_url($courses_url, LONG_CACHE_EXPIRY_TIMESPAN);
 
     if (!$data) {
       echo 'Failed to grab the course url data from '.$url."\n";
@@ -267,7 +269,7 @@ echo 'Updated faculties...'."\n";
 $courses = array();
 
 foreach ($faculties as $acronym => $info) {
-  $data = fetch_url($info['url']);
+  $data = fetch_url($info['url'], LONG_CACHE_EXPIRY_TIMESPAN);
 
   if (!$data) {
     echo 'Failed to grab the course url data from '.$url."\n";
