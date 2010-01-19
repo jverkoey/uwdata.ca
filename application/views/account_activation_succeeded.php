@@ -1,5 +1,6 @@
 <?php defined('SYSPATH') OR die('No direct access allowed.'); ?>
-Darn, something went wrong
-==========================
+Your account is now active.
+===========================
 
 <?= $reason ?>
+

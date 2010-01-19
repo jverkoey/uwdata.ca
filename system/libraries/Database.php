@@ -813,9 +813,10 @@ class Database_Core {
 	 *
 	 * @param   string|array  key name or array of key => value pairs
 	 * @param   string        value to match with key
+	 * @param   bool          whether to disable escaping of the value or not.
 	 * @return  Database_Core        This Database object.
 	 */
-	public function set($key, $value = '')
+	public function set($key, $value = '', $disable_escaping = false)
 	{
 		if ( ! is_array($key))
 		{
@@ -828,7 +829,11 @@ class Database_Core {
 			if (strpos($k, '.'))
 				$k = $this->config['table_prefix'].$k;
 
-			$this->set[$k] = $this->driver->escape($v);
+      if ($disable_escaping) {
+        $this->set[$k] = $v;
+      } else {
+			  $this->set[$k] = $this->driver->escape($v);
+			}
 		}
 
 		return $this;
