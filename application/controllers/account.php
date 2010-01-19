@@ -67,7 +67,7 @@ class Account_Controller extends Uwdata_Controller {
   private function render_activation_failed_view($reason) {
 		$content = new View('account_activation_failed');
 		$content->reason = $reason;
-		$this->template->title = 'Unable to activate account | uwdata.ca';
+		$this->prepend_title("Account activation");
 
     $this->render_markdown_template($content);
   }
@@ -75,7 +75,7 @@ class Account_Controller extends Uwdata_Controller {
   private function render_activation_succeeded_view($reason) {
 		$content = new View('account_activation_succeeded');
 		$content->reason = $reason;
-		$this->template->title = 'Your account is now active | uwdata.ca';
+		$this->prepend_title("Account activation");
 
     $this->render_markdown_template($content);
   }

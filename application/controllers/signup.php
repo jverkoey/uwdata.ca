@@ -54,7 +54,7 @@ Your private API key: $private_key</p>
 <p>Keep this email around or save these keys somewhere. If you do lose the keys you'll be
 able to request your API keys again from uwdata.ca.</p>
 <p>Before you can use these keys you'll need to
-<a href="http://dev.uwdata.ca/account/activate/$validation_key">activate your email</a>.</p>
+<a href="http://uwdata.ca/account/activate/$validation_key">activate your account</a>.</p>
 <p style="color: #999">- Jeff Verkoeyen</p>
 </div>
 EMAIL
@@ -68,7 +68,7 @@ EMAIL
 <p>Over the next few weeks we'll be rolling out uwdata for more and more people. As soon as the API
 is available for general users, you'll be one of the first to know!</p>
 <p>In the meantime, feel free to
-<a href="http://dev.uwdata.ca/account/activate/$validation_key">activate your email</a>.</p>
+<a href="http://uwdata.ca/account/activate/$validation_key">activate your account</a>.</p>
 <p style="color: #999">- Jeff Verkoeyen</p>
 </div>
 EMAIL
@@ -81,34 +81,71 @@ EMAIL
   	else return $code;
   }
 
+  public function completed() {
+	  if (!IN_PRODUCTION) {
+		  $profiler = new Profiler;
+		}
+
+    if ($this->session->get('just_completed')) {
+  		$content = new View('account_signup_completed');
+  		$this->prepend_title("Account signup completed");
+
+      $this->render_markdown_template($content);
+    } else {
+      url::redirect('/');
+    }
+  }
+
   public function request() {
+	  if (!IN_PRODUCTION) {
+		  $profiler = new Profiler;
+		}
+
     $post = new Validation($_POST);
     $post->add_rules('email', 'required', array('valid','email'));
 
-    if ($post->validate()) {
+    $is_resending = $this->input->get('resend', 0);
+    if ($is_resending || $post->validate()) {
       $db = Database::instance();
 
-      $email = trim($this->input->post('email'));
+      // Check for re-entry of the page here.
+      if ($is_resending) {
+        $email = trim($this->session->get('saved_email'));
+        if (!$email || !valid::email($email)) {
+          if (!$email) {
+            $error_str_id = 'form_error_messages.email.required';
+          } else {
+            $error_str_id = 'form_error_messages.email.email';
+          }
+          $this->session->set_flash('signup_email_error', Kohana::lang($error_str_id));
+          url::redirect('signup');
+          return;
+        }
 
-      $email_users_set = $db->
-        from('email_users')->
-        select('user_id', 'last_emailed_timestamp', 'is_validated')->
-        where('email', $email)->
-        limit(1)->
-        get();
+      } else {
+        $email = trim($this->input->post('email'));
+      }
 
-      if (count($email_users_set)) {
+      if (!$is_resending) {
+        $email_users_set = $db->
+          from('email_users')->
+          select('user_id', 'last_emailed_timestamp', 'is_validated')->
+          where('email', $email)->
+          limit(1)->
+          get();
+      }
+
+      if (!$is_resending && count($email_users_set)) {
         foreach ($email_users_set as $row) {
           $email_user = $row;
         }
-  		  $content = new View('signup_submission');
-		    $this->template->title = "Sign up | uwdata.ca";
+		    $this->prepend_title("Sign up");
   		  if ($email_user->is_validated) {
-          $content->title = "Your account is active.";
+          $this->render_markdown_template(new View('account_already_active'));
   		  } else {
-          $content->title = "Send the email again?";
+  		    $this->session->set_flash('saved_email', $email);
+          $this->render_markdown_template(new View('account_resend_email'));
   		  }
-        $this->render_markdown_template($content);
 
       } else {
         $validation_key = $this->getUniqueCode($email, 32);
@@ -124,24 +161,46 @@ EMAIL
           $successfully_sent_email = $this->send_coming_soon_email($email, $validation_key);
         }
 
-        $user_details_values = array(
-          'primary_email' => $email
-        );
-        if (isset($public_api_key) && isset($private_api_key)) {
-          $user_details_values['public_api_key'] = $public_api_key;
-          $user_details_values['private_api_key'] = $private_api_key;
+        if (!$is_resending) {
+          $user_details_values = array(
+            'primary_email' => $email
+          );
+          if (isset($public_api_key) && isset($private_api_key)) {
+            $user_details_values['public_api_key'] = $public_api_key;
+            $user_details_values['private_api_key'] = $private_api_key;
+          }
+          $user_details = $db->insert('user_details', $user_details_values);
         }
-        $user_details = $db->insert('user_details', $user_details_values);
 
-        $email_users_values = array(
-          'email'           => $email,
-          'validation_key'  => $validation_key,
-          'user_id'         => $user_details->insert_id()
-        );
-        if ($successfully_sent_email) {
-          $email_users_values['last_emailed_timestamp'] = 'CURRENT_TIMESTAMP';
+        if (!$is_resending) {
+          $email_users_values = array(
+            'email'           => $email,
+            'validation_key'  => $validation_key,
+            'user_id'         => $user_details->insert_id()
+          );
+          $db->insert('email_users', $email_users_values);
+
+          if ($successfully_sent_email) {
+            $db->
+              from('email_users')->
+              set('last_emailed_timestamp', 'CURRENT_TIMESTAMP', $disable_escaping = true)->
+              where('email', $email)->
+              update();
+          }
+
+        } else {
+          if ($successfully_sent_email) {
+            $db->
+              from('email_users')->
+              set('validation_key', $validation_key)->
+              set('last_emailed_timestamp', 'CURRENT_TIMESTAMP', $disable_escaping = true)->
+              where('email', $email)->
+              update();
+          }
         }
-        $db->insert('email_users', $email_users_values);
+
+        $this->session->set_flash('just_completed', true);
+        url::redirect('signup/completed');
       }
 
     } else {
@@ -159,7 +218,7 @@ EMAIL
 
 		$content = new View('signup_content');
 
-		$this->template->title = 'Get an API key | uwdata.ca';
+    $this->prepend_title("Get an API key");
 
     return $content;
   }

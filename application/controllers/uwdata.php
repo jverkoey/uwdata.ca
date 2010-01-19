@@ -20,6 +20,7 @@ class Uwdata_Controller extends Template_Controller {
 
 		$this->template->js_foot_files = array();
 		$this->template->css_files = array();
+		$this->template->title = array('uwdata.ca');
   }
 
   protected function add_js_foot_file($file) {
@@ -30,10 +31,15 @@ class Uwdata_Controller extends Template_Controller {
     $this->template->css_files []= $file;
   }
 
+  protected function prepend_title($text) {
+    array_unshift($this->template->title, $text);
+  }
+
   protected function render_markdown_template($content) {
 		require Kohana::find_file('vendor', 'Markdown');
     $this->template->content = $content->render(FALSE, 'Markdown');
 
+    $this->template->title = implode(' | ', $this->template->title);
     $this->template->render(TRUE);
   }
 

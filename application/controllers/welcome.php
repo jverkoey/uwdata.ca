@@ -20,12 +20,7 @@ class Welcome_Controller extends Uwdata_Controller {
 
 		$content = new View('welcome_content');
 
-		$this->template->title = 'uwdata.ca';
-
-		require Kohana::find_file('vendor', 'Markdown');
-    $this->template->content = $content->render(FALSE, 'Markdown');
-
-    $this->template->render(TRUE);
+    $this->render_markdown_template($content);
 	}
 
 } // End Welcome Controller

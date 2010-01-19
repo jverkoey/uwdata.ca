@@ -308,3 +308,8 @@ input:focus {
   margin-bottom: 10px;
   text-shadow: 1px 1px 0px #FFF;
 }
+
+#content .large_button {
+  font-size: 3em;
+  padding: 10px;
+}

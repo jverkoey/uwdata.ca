@@ -1,3 +1,4 @@
 <?php defined('SYSPATH') OR die('No direct access allowed.'); ?>
 
-<h1><?= $title ?></h1>
+Your account is active.
+=======================
