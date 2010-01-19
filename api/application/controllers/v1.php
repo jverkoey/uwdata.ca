@@ -935,7 +935,7 @@ class V1_Controller extends Controller {
       $this->echo_formatted_data($this->error_data("The given API key is not activated. Please activate your account at uwdata.ca before issuing further requests."), $return_type);
       return null;
     }
-    if (!$email_user->is_disabled) {
+    if ($email_user->is_disabled) {
       $this->echo_formatted_data($this->error_data("The given API key has been disabled. If you feel like this is a mistake, please contact us at accounts@uwdata.ca"), $return_type);
       return null;
     }
