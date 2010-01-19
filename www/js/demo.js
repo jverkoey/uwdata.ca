@@ -40,7 +40,8 @@ $(function() {
       return;
     }
 
-    $('#ajax-loader').css('visibility', 'visible');
+    $('#ajax-loader').css('display', 'inline');
+    $('#search .results').empty();
 
     $.ajax({
       dataType: 'jsonp',
@@ -48,10 +49,10 @@ $(function() {
       jsonp: 'jsonp_callback',
       url: 'http://api.uwdata.ca/v1/course/search.json',
       failure: function() {
-        $('#ajax-loader').css('visibility', 'hidden');
+        $('#ajax-loader').css('display', 'none');
       },
       success: function(data) {
-        $('#ajax-loader').css('visibility', 'hidden');
+        $('#ajax-loader').css('display', 'none');
 
         if (data.error) {
           $('#search h2').text('No results found, try something like "psychology" or "ENGL 408C"');

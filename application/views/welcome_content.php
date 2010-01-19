@@ -17,7 +17,7 @@ Sorry, but you're going to have to enable Javascript to play with this.
 <input type="text" id="course_search" placeholder="Search for courses" autocomplete="off" />
 </div>
 
-<img id="ajax-loader" style="visibility:hidden" src="/gfx/ajax-loader.gif" />
+<img id="ajax-loader" style="display:none" src="/gfx/ajax-loader.gif" />
 </div>
 
 <div id="search" style="display: none" markdown="1">
