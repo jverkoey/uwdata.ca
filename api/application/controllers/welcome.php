@@ -10,6 +10,7 @@ class Welcome_Controller extends Controller {
 	const ALLOW_PRODUCTION = TRUE;
 
 	public function index() {
+	  url::redirect('http://uwdata.ca/');
 	}
 
 } // End Welcome Controller

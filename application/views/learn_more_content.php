@@ -9,7 +9,8 @@ Version 1 of the uwdata API covers the following data sets:
 * Professor information, including ratemyprofessors.com scores for ease and quality.
 * Course prerequisites parsed in a prefix-order format, allowing easy calculation of satisfaction.
 
-The API is accessed via a set of URLs that are outlined below.
+The API is accessed via a set of URLs that are outlined below. Access the UW API via
+`http://api.uwdata.ca/`.
 
 Examples
 --------
