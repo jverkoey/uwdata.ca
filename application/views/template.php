@@ -17,6 +17,7 @@
   <div class="fixedwidth">
     <div class="title"><a href="/"><span class="uwcolor">uw</span>data<span class="subtitle">.ca</span></a></div>
     <ul>
+      <li><a href="/contribute">Want to contribute?</a></li>
       <li><a href="/learnmore">Learn more</a></li>
       <li><a href="/signup" class="standout">Request an API key</a></li>
     </ul>

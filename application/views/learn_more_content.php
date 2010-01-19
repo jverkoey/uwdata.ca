@@ -11,6 +11,23 @@ Version 1 of the uwdata API covers the following data sets:
 
 The API is accessed via a set of URLs that are outlined below.
 
+Examples
+--------
+
+### JQuery
+
+#### Search the course list
+
+    $.ajax({
+      dataType: 'jsonp',
+      data: {q: query, key: 'your_api_key'},
+      jsonp: 'jsonp_callback',
+      url: 'http://api.uwdata.ca/v1/course/search.json',
+      success: function(data) {
+        console.log(data);
+      }
+    });
+
 <div class="blocks">
 <div class="block" markdown="1">
 ### Faculties
