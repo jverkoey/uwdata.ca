@@ -40,12 +40,19 @@ $(function() {
       return;
     }
 
+    $('#ajax-loader').css('visibility', 'visible');
+
     $.ajax({
       dataType: 'jsonp',
       data: {q: query, key: '6a43bfb883aeeff0d72c895e09425538'},
       jsonp: 'jsonp_callback',
       url: 'http://api.uwdata.ca/v1/course/search.json',
+      failure: function() {
+        $('#ajax-loader').css('visibility', 'hidden');
+      },
       success: function(data) {
+        $('#ajax-loader').css('visibility', 'hidden');
+
         if (data.error) {
           $('#search h2').text('No results found, try something like "psychology" or "ENGL 408C"');
           $('#search .results').empty();

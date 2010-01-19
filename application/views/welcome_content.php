@@ -9,9 +9,15 @@ The University of Waterloo's public data now available through a RESTful API.
 Go ahead, give it a try.
 ------------------------
 
+<noscript markdown="1">
+Sorry, but you're going to have to enable Javascript to play with this.
+</noscript>
+
 <div class="big_form">
 <input type="text" id="course_search" placeholder="Search for courses" autocomplete="off" />
 </div>
+
+<img id="ajax-loader" style="visibility:hidden" src="/gfx/ajax-loader.gif" />
 </div>
 
 <div id="search" style="display: none" markdown="1">
