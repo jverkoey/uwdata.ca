@@ -109,7 +109,9 @@ EMAIL
           $successfully_sent_email = $this->send_coming_soon_email($email, $validation_key);
         }
 
-        $user_details_values = array();
+        $user_details_values = array(
+          '__created' => 'CURRENT_TIMESTAMP'
+        );
         if (isset($public_api_key) && isset($private_api_key)) {
           $user_details_values['public_api_key'] = $public_api_key;
           $user_details_values['private_api_key'] = $private_api_key;
