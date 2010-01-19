@@ -9,7 +9,7 @@ class Account_Controller extends Uwdata_Controller {
 
 	const ALLOW_PRODUCTION = TRUE;
 
-	public function validate($validation_key) {
+	public function activate($validation_key) {
 	  if (!IN_PRODUCTION) {
 		  $profiler = new Profiler;
 		}
@@ -18,8 +18,13 @@ class Account_Controller extends Uwdata_Controller {
     if ($validation_key && strlen($validation_key) == 32) {
       $db = Database::instance();
       $email_users_set = $db->
-        select('email', 'is_validated')->
+        select(
+          'email_users.email',
+          'email_users.is_validated',
+          'user_details.public_api_key',
+          'user_details.private_api_key')->
         from('email_users')->
+        join('user_details', array('email_users.user_id' => 'user_details.id'))->
         where('validation_key', $validation_key)->
         limit(1)->
         get();
@@ -40,8 +45,13 @@ class Account_Controller extends Uwdata_Controller {
             update();
         }
 
-    		$this->render_activation_succeeded_view(
-    		  Kohana::lang('account_messages.activation.success'));
+        if ($email_user_row->public_api_key) {
+      		$this->render_activation_succeeded_view(
+      		  Kohana::lang('account_messages.activation.success_with_api_keys'));
+    		} else {
+      		$this->render_activation_succeeded_view(
+      		  Kohana::lang('account_messages.activation.success_without_api_keys'));
+      	}
 
       } else {
     		$this->render_activation_failed_view(

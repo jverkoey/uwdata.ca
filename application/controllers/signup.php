@@ -28,6 +28,10 @@ class Signup_Controller extends Uwdata_Controller {
     $subject = $subject;
     $message = $content;
 
+    if (!IN_PRODUCTION) {
+      echo $content;
+    }
+
     $recipients = new Swift_RecipientList;
     $recipients->addTo($email);
 
@@ -50,7 +54,7 @@ Your private API key: $private_key</p>
 <p>Keep this email around or save these keys somewhere. If you do lose the keys you'll be
 able to request your API keys again from uwdata.ca.</p>
 <p>Before you can use these keys you'll need to
-<a href="http://uwdata.ca/account/validate/$validation_key">validate your email</a>.</p>
+<a href="http://dev.uwdata.ca/account/activate/$validation_key">activate your email</a>.</p>
 <p style="color: #999">- Jeff Verkoeyen</p>
 </div>
 EMAIL
@@ -64,7 +68,7 @@ EMAIL
 <p>Over the next few weeks we'll be rolling out uwdata for more and more people. As soon as the API
 is available for general users, you'll be one of the first to know!</p>
 <p>In the meantime, feel free to
-<a href="http://uwdata.ca/account/validate/$validation_key">validate your email</a>.</p>
+<a href="http://dev.uwdata.ca/account/activate/$validation_key">activate your email</a>.</p>
 <p style="color: #999">- Jeff Verkoeyen</p>
 </div>
 EMAIL
@@ -86,14 +90,25 @@ EMAIL
 
       $email = trim($this->input->post('email'));
 
-      $result_set = $db->
+      $email_users_set = $db->
         from('email_users')->
         select('user_id', 'last_emailed_timestamp', 'is_validated')->
         where('email', $email)->
+        limit(1)->
         get();
 
-      if (count($result_set)) {
-        
+      if (count($email_users_set)) {
+        foreach ($email_users_set as $row) {
+          $email_user = $row;
+        }
+  		  $content = new View('signup_submission');
+		    $this->template->title = "Sign up | uwdata.ca";
+  		  if ($email_user->is_validated) {
+          $content->title = "Your account is active.";
+  		  } else {
+          $content->title = "Send the email again?";
+  		  }
+        $this->render_markdown_template($content);
 
       } else {
         $validation_key = $this->getUniqueCode($email, 32);
@@ -110,7 +125,7 @@ EMAIL
         }
 
         $user_details_values = array(
-          '__created' => 'CURRENT_TIMESTAMP'
+          'primary_email' => $email
         );
         if (isset($public_api_key) && isset($private_api_key)) {
           $user_details_values['public_api_key'] = $public_api_key;
