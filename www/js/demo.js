@@ -42,6 +42,7 @@ $(function() {
 
     $('#ajax-loader').css('display', 'inline');
     $('#search .results').empty();
+    $('#search h2').empty();
 
     $.ajax({
       dataType: 'jsonp',
