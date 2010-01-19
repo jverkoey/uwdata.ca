@@ -118,6 +118,7 @@ if (preg_match_all('/<OPTION VALUE="([A-Z]+)"(?: SELECTED)?>[A-Z]+/', $index_dat
     }
 
     $html = str_get_html($data);
+    unset($data);
 
     $classes = array();
     $active_course = null;
@@ -254,6 +255,7 @@ if (preg_match_all('/<OPTION VALUE="([A-Z]+)"(?: SELECTED)?>[A-Z]+/', $index_dat
       $sql = 'INSERT INTO classes('.implode(',', array_keys($class)).') VALUES('.implode(',', $escaped_values).') ON DUPLICATE KEY UPDATE '.implode(',', $update_query_arr).';';
       $db->query($sql);
     }
+    unset($classes);
   }}
 }
 
