@@ -94,7 +94,7 @@ if ($is_old_calendar) {
 
 }
 
-$dbName = 'uwdata'.str_replace('-', '', $calendarYear);
+$dbName = 'uwdata_'.str_replace('-', '', $calendarYear);
 
 echo 'Scraping data from the '.$calendarYear.' calendar year'."\n";
 echo '  db: '.$dbName."\n";

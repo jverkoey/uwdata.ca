@@ -24,7 +24,7 @@ if (!isset($calendar_urls[$calendar_years])) {
 
 $calendar_url = $calendar_urls[$calendar_years];
 
-$dbName = 'uwdata'.str_replace('-', '', $calendar_years);
+$dbName = 'uwdata_'.str_replace('-', '', $calendar_years);
 
 echo 'Calculating prereqs from the '.$calendar_years.' calendar year'."\n";
 echo '  db: '.$dbName."\n";
