@@ -61,9 +61,6 @@
 <? } ?>
       Source hosted on <a href="http://github.com/jverkoey/uwdata.ca">github</a>.<br/>
       Made with the <a href="http://kohanaphp.com/">Kohana</a> framework.
-
-      <img src="/gfx/omg.png" style="display:none" />
-
     </div>
   </div>
 </div>
