@@ -2,6 +2,8 @@
 
 define('CACHE_EXPIRY_TIMESPAN', 60*60*24);
 
+ini_set("memory_limit","12M");
+
 /**
  * Fetch the given url by first checking the local cache and then the web.
  */
