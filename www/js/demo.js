@@ -44,7 +44,7 @@ $(function() {
       dataType: 'jsonp',
       data: {q: query, key: '6a43bfb883aeeff0d72c895e09425538'},
       jsonp: 'jsonp_callback',
-      url: 'http://dev.api.uwdata.ca/v1/course/search.json',
+      url: 'http://api.uwdata.ca/v1/course/search.json',
       success: function(data) {
         if (data.error) {
           $('#search h2').text('No results found, try something like "psychology" or "ENGL 408C"');
