@@ -49,9 +49,8 @@ class Signup_Controller extends Uwdata_Controller {
     return $this->send_email($email, 'Your uwdata API keys', <<<EMAIL
 <div style="font-family: arial,helvetica,clean,sans-serif;color:#333">
 <h1 style="font-size:2em;color:#999">Welcome to the UW Data developer program</h1>
-<p>Your public API key: $public_key<br/>
-Your private API key: $private_key</p>
-<p>Keep this email around or save these keys somewhere. If you do lose the keys you'll be
+<p>Your public API key: $public_key</p>
+<p>Keep this email around or save this key somewhere. If you do lose the key you'll be
 able to request your API keys again from uwdata.ca.</p>
 <p>Before you can use these keys you'll need to
 <a href="http://uwdata.ca/account/activate/$validation_key">activate your account</a>.</p>

@@ -9,6 +9,26 @@ class V1_Controller extends Controller {
 
 	const ALLOW_PRODUCTION = TRUE;
 
+  private function add_log($action, $param1, $param2, $param3) {
+    $api_key = $this->input->get('key');
+    $db = Database::instance('uwdata_logs');
+    $data = array(
+      'api_key' => $api_key,
+      'action_name' => $action,
+      'host_ip' => $this->input->ip_address()
+    );
+    if ($param1) {
+      $data['param1'] = $param1;
+    }
+    if ($param2) {
+      $data['param2'] = $param2;
+    }
+    if ($param3) {
+      $data['param3'] = $param3;
+    }
+    $db->insert('api_logs', $data);
+  }
+
   /**
    * Possible endpoints:
    *   v1/faculty/list.<return type>
@@ -23,6 +43,11 @@ class V1_Controller extends Controller {
    */
 	public function faculty($param1, $param2 = null, $param3 = null) {
 	  $return_type = $this->init_action($param1, $param2, $param3);
+	  if (!$return_type) {
+	    return;
+	  }
+
+    $this->add_log('faculty', $param1, $param2, $param3);
 
     if (eregi('^[a-z]+$', $param1)) {
       // v1/faculty/<text>
@@ -75,6 +100,11 @@ class V1_Controller extends Controller {
    */
 	public function course($param1, $param2 = null, $param3 = null) {
 	  $return_type = $this->init_action($param1, $param2, $param3);
+	  if (!$return_type) {
+	    return;
+	  }
+
+    $this->add_log('course', $param1, $param2, $param3);
 
     if (eregi('^[a-z]+$', $param1) && eregi('^[0-9]+[a-z]*$', $param2)) {
       // v1/course/<faculty acronym>/<course number>
@@ -135,6 +165,11 @@ class V1_Controller extends Controller {
    */
 	public function prof($param1, $param2 = null, $param3 = null) {
 	  $return_type = $this->init_action($param1, $param2, $param3);
+	  if (!$return_type) {
+	    return;
+	  }
+
+    $this->add_log('prof', $param1, $param2, $param3);
 
     if (ereg('^[0-9]+$', $param1)) {
       if ($param2 == 'timeslots') {
@@ -171,6 +206,11 @@ class V1_Controller extends Controller {
    */
 	public function term($param1, $param2 = null, $param3 = null) {
 	  $return_type = $this->init_action($param1, $param2, $param3);
+	  if (!$return_type) {
+	    return;
+	  }
+
+    $this->add_log('term', $param1, $param2, $param3);
 
     if (!$param2) {
       if ($param1 == 'list') {
@@ -845,6 +885,24 @@ class V1_Controller extends Controller {
   private function init_action(&$param1, &$param2, &$param3) {
     //$profiler = new Profiler;
 
+    $api_key = $this->input->get('key');
+    if (!$api_key) {
+      throw new Kohana_Exception('api.errors.no_api_key');
+    }
+
+    $db = Database::instance('uwdata');
+    $email_users_set = $db->
+      select('email_users.is_validated')->
+      from('email_users')->
+      join('user_details', array('email_users.user_id' => 'user_details.id'))->
+      where('user_details.public_api_key', $api_key)->
+      limit(1)->
+      get();
+
+    if (!count($email_users_set)) {
+      throw new Kohana_Exception('api.errors.nonexistent_key');
+    }
+
     if ($param3) {
       list($param3, $return_type) = $this->action_info($param3);
     } else if ($param2) {
@@ -855,6 +913,18 @@ class V1_Controller extends Controller {
 
     if (!$param1) {
       throw new Kohana_404_Exception();
+    }
+
+    if (!$return_type) {
+      throw new Kohana_Exception('api.errors.no_return_type');
+    }
+
+    foreach ($email_users_set as $row) {
+      $email_user = $row;
+    }
+    if (!$email_user->is_validated) {
+      $this->echo_formatted_data($this->error_data("The given API key is not activated. Please activate your account at uwdata.ca before issuing further requests."), $return_type);
+      return null;
     }
 
     return $return_type;
