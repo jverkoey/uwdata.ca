@@ -65,6 +65,8 @@
   </div>
 </div>
 
+<img src="/gfx/uwlogo.gif" style="display:none" />
+
 <? echo html::script($js_foot_files, FALSE); ?>
 
 <? if (IN_PRODUCTION) { ?>
