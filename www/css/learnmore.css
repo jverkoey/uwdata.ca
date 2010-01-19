@@ -1,0 +1,13 @@
+
+#content h3 {
+  font-family: Consolas,Monaco,Lucida Console,Liberation Mono,DejaVu Sans Mono,Bitstream Vera Sans Mono,Courier New;
+}
+
+#content h2 {
+  border-bottom: 5px solid #DDD;
+}
+
+#content h3 {
+  background-color: #DDD;
+  padding: 5px;
+}

@@ -191,6 +191,14 @@
   font-size: 1.5em;
   color: #666;
   text-shadow: 1px 1px 0px #FFF;
+  margin-bottom: 5px;
+}
+
+#content h4 {
+  font-size: 1.1em;
+  color: #666;
+  text-shadow: 1px 1px 0px #FFF;
+  margin-bottom: 5px;
 }
 
 #content .source {
@@ -203,7 +211,7 @@
 #content p,
 #content center {
   font-size: 1.3em;
-  margin-bottom: 20px;
+  margin-bottom: 10px;
   line-height: 1.7em;
   text-shadow: 1px 1px 0px #DDD;
   color: #333;
@@ -214,7 +222,7 @@
 }
 
 #content ul {
-  margin-bottom: 20px;
+  margin-bottom: 10px;
 }
 
 #content ol li,
@@ -223,8 +231,8 @@
   margin-left: 25px;
   margin-bottom: 10px;
   line-height: 1.5em;
-  text-shadow: -1px -1px 1px #fff;
-  color: #111;
+  text-shadow: 1px 1px 0px #DDD;
+  color: #333;
 }
 
 #content ol li {
@@ -312,4 +320,20 @@ input:focus {
 #content .large_button {
   font-size: 3em;
   padding: 10px;
+}
+
+#content .footnotes li {
+  font-size: 1em;
+}
+
+#content .footnotes p {
+  font-size: 1em;
+}
+
+#content pre {
+  padding: 10px;
+  border: 1px solid #DDD;
+  background-color: #FFF;
+  margin-bottom: 10px;
+  font-family: Consolas,Monaco,Lucida Console,Liberation Mono,DejaVu Sans Mono,Bitstream Vera Sans Mono,Courier New;
 }
