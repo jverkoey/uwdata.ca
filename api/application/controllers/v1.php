@@ -26,6 +26,10 @@ class V1_Controller extends Controller {
     if ($param3) {
       $data['param3'] = $param3;
     }
+    $query = $this->input->get('q');
+    if ($query) {
+      $data['query'] = $query;
+    }
     $db->insert('api_logs', $data);
   }
 
@@ -143,8 +147,13 @@ class V1_Controller extends Controller {
       }
 
     } else if (!$param2) {
-      // v1/course/search.<return type>?q=<query>
-      $this->course_search($return_type);
+      if ($param1 == 'search') {
+        // v1/course/search.<return type>?q=<query>
+        $this->course_search($return_type);
+
+      } else {
+        throw new Kohana_404_Exception();
+      }
 
     } else {
       throw new Kohana_404_Exception();
