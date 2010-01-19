@@ -2,6 +2,7 @@
 
 // UW course prereqs calculation
 
+include_once COMMON_PATH.'db.php';
 include_once COMMON_PATH.'scraper_tools.php';
 include_once COMMON_PATH.'simple_html_dom.php';
 include_once COMMON_PATH.'Database.class.php';
@@ -11,7 +12,7 @@ echo 'Binding ratemyprof ids with the schedule prof names...'."\n";
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // Now that we know which calendar year we're working with, let's ensure that the tables exist.
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-$db = new Database('localhost', 'uwdata', 'uwdata', 'uwdata_schedule');
+$db = new Database(DB_HOST, DB_USER, DB_PASS, 'uwdata_schedule');
 $db->connect();
 
 $results = $db->query('SELECT class_number, term, instructor FROM classes;');

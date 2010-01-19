@@ -5,3 +5,4 @@ api/application/cache
 api/system
 api/modules
 shovel/data
+shovel/common/db.php

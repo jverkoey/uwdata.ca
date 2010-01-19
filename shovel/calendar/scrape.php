@@ -2,6 +2,7 @@
 
 // Welcome to the UW Course Calendar scraper.
 
+include_once COMMON_PATH.'db.php';
 include_once COMMON_PATH.'scraper_tools.php';
 include_once COMMON_PATH.'simple_html_dom.php';
 include_once COMMON_PATH.'Database.class.php';
@@ -101,7 +102,7 @@ echo '  db: '.$dbName."\n";
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // Now that we know which calendar year we're working with, let's ensure that the tables exist.
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-$db = new Database('localhost', 'uwdata', 'uwdata', $dbName);
+$db = new Database(DB_HOST, DB_USER, DB_PASS, $dbName);
 $db->connect();
 
 // Create the schemas.
