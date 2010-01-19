@@ -8,11 +8,22 @@
 }
 
 #content h3 {
-  background-color: #DDD;
+  border-top: 10px dashed #EEE;
+  background-color: #BBB;
   padding: 5px;
+  color: #111;
+  text-shadow: 1px 1px 0px #DDD;
 }
 
 .blocks .block {
   float: left;
   margin-right: 10px;
+}
+
+.blocks .block ul {
+  padding-right: 10px;
+}
+
+#content .blocks .block h3 {
+  border-top: 0;
 }

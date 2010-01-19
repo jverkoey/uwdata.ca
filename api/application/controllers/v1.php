@@ -98,6 +98,9 @@ class V1_Controller extends Controller {
    *   v1/course/<faculty acronym>/<course number>/schedule.<return type>
    *   - The schedule for the given course.
    *     course_schedule_by_number
+   *   v1/course/<course id>/schedule.<return type>
+   *   - The schedule for the given course.
+   *     course_schedule_by_id
    *   v1/course/search.<return type>?q=<query>
    *   - Search the course list by title and description.
    *     course_search
