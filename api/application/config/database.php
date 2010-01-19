@@ -34,7 +34,7 @@ $config['default'] = array
 		'host'     => 'localhost',
 		'port'     => FALSE,
 		'socket'   => FALSE
-		//'database' => 'uwdata20092010'
+		//'database' => 'uwdata_20092010'
 	),
 	'character_set' => 'utf8',
 	'table_prefix'  => '',
@@ -56,8 +56,8 @@ $tables = array(
   //'20002001',
 );
 foreach ($tables as $years) {
-  $config['uwdata'.$years] = $config['default'];
-  $config['uwdata'.$years]['connection']['database'] = 'uwdata'.$years;
+  $config['uwdata_'.$years] = $config['default'];
+  $config['uwdata_'.$years]['connection']['database'] = 'uwdata_'.$years;
 }
 
 $config['uwdata_schedule'] = $config['default'];

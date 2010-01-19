@@ -866,7 +866,7 @@ class V1_Controller extends Controller {
       return null;
     }
 
-	  $db = Database::instance('uwdata'.$cal_year);
+	  $db = Database::instance('uwdata_'.$cal_year);
 
     return $db;
   }
