@@ -5,7 +5,7 @@
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
   <meta name="keywords" content="Waterloo University API data uw uwdata course calendar" />
-  <meta name="description" content="UWData.ca is the premiere source for building applications upon the UW data set." />
+  <meta name="description" content="UWData.ca is the premiere source for building applications upon the UW data set. It's also Waterloo's first public API." />
   <title><?php echo html::specialchars($title) ?></title>
 <?
   echo html::stylesheet(array('css/reset', 'css/common'), null, FALSE);
