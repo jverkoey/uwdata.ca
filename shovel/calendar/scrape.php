@@ -347,9 +347,11 @@ foreach ($faculties as $acronym => $info) {
             $course['coreq_desc'] = $data;
           } else if (0 === strpos($data, '(Cross-listed')) {
             $course['crosslist_desc'] = $data;
-          } else if (0 === strpos($data, 'Also offered by Distance Education')) {
+          } else if (0 === strpos($data, 'Also offered by Distance Education') ||
+                     0 === strpos($data, 'Also offered Online')) {
             $course['has_dist_ed'] = true;
-          } else if (0 === strpos($data, 'Only offered by Distance Education')) {
+          } else if (0 === strpos($data, 'Only offered by Distance Education') ||
+                     0 === strpos($data, 'Only offered Online')) {
             $course['only_dist_ed'] = true;
           } else if (0 === strpos($data, 'Offered at St. Jerome\'s University')) {
             $course['only_stj'] = true;
