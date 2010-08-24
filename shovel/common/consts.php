@@ -3,7 +3,8 @@
 define('COURSE_CAL_ROOT_URL', 'http://ugradcalendar.uwaterloo.ca/');
 
 $calendar_urls = array(
-  '20092010' => 'http://ugradcalendar.uwaterloo.ca/',
+  '20102011' => 'http://ugradcalendar.uwaterloo.ca',
+  '20092010' => 'http://ugradcalendar.uwaterloo.ca/?ActiveDate=9/1/2009',
   '20082009' => 'http://ugradcalendar.uwaterloo.ca/?pageID=10300',
   '20072008' => 'http://ugradcalendar.uwaterloo.ca/?pageID=10301',
   '20062007' => 'http://ugradcalendar.uwaterloo.ca/?pageID=10302',
