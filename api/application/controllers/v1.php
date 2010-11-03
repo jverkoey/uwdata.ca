@@ -947,7 +947,7 @@ class V1_Controller extends Controller {
   }
 
   private function get_db($calendar_years = null) {
-    $cal_year = $calendar_years ? $calendar_years : $this->input->get('cal', '20092010');
+    $cal_year = $calendar_years ? $calendar_years : $this->input->get('cal', '20102011');
     if (!ereg('^[0-9]+$', $cal_year)) {
       return null;
     }
