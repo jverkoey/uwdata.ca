@@ -7,6 +7,8 @@
  * @see http://kohanaphp.com
  */
 
+date_default_timezone_set('America/Toronto');
+
 /**
  * Define the website environment status. When this flag is set to TRUE, some
  * module demonstration controllers will result in 404 errors. For more information

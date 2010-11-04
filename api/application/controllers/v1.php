@@ -53,7 +53,7 @@ class V1_Controller extends Controller {
 
     $this->add_log('faculty', $param1, $param2, $param3);
 
-    if (eregi('^[a-z]+$', $param1)) {
+    if (preg_match('/^[a-z]+$/i', $param1)) {
       // v1/faculty/<text>
 
       if (!$param2) {
@@ -113,7 +113,7 @@ class V1_Controller extends Controller {
 
     $this->add_log('course', $param1, $param2, $param3);
 
-    if (eregi('^[a-z]+$', $param1) && eregi('^[0-9]+[a-z]*$', $param2)) {
+    if (preg_match('/^[a-z]+$/i', $param1) && preg_match('/^[0-9]+[a-z]*$/i', $param2)) {
       // v1/course/<faculty acronym>/<course number>
 
       if ($param3 == 'prereqs') {
@@ -132,7 +132,7 @@ class V1_Controller extends Controller {
         throw new Kohana_404_Exception();
       }
 
-    } else if (eregi('^[0-9]+$', $param1)) {
+    } else if (preg_match('/^[0-9]+$/i', $param1)) {
       if ($param2 == 'prereqs') {
         // v1/course/<course id>/prereqs.<return type>
         $this->course_prereqs_by_id($param1, $return_type);
@@ -183,7 +183,7 @@ class V1_Controller extends Controller {
 
     $this->add_log('prof', $param1, $param2, $param3);
 
-    if (ereg('^[0-9]+$', $param1)) {
+    if (preg_match('/^[0-9]+$/', $param1)) {
       if ($param2 == 'timeslots') {
         // v1/prof/<instructor id>/timeslots.<return type>
         $this->prof_timeslots($param1, $return_type);
@@ -228,6 +228,36 @@ class V1_Controller extends Controller {
       if ($param1 == 'list') {
         // v1/term/list.<return type>
         $this->term_list($return_type);
+
+      } else {
+        throw new Kohana_404_Exception();
+      }
+
+    } else {
+      throw new Kohana_404_Exception();
+    }
+	}
+
+  /**
+   * Possible endpoints:
+   *   v1/dump/courses.<return type>
+   *   - A list of all courses for the active term.
+   *     dump_courses
+   */
+	public function dump($param1, $param2 = null, $param3 = null) {
+	  $return_type = $this->init_action($param1, $param2, $param3);
+	  if (!$return_type) {
+	    return;
+	  }
+
+    $this->add_log('dump', $param1, $param2, $param3);
+
+    if (preg_match('/^courses$/i', $param1)) {
+      // v1/dump/courses
+
+      if (!$param2) {
+        // v1/dump/courses.<return type>
+        $this->dump_courses($return_type);
 
       } else {
         throw new Kohana_404_Exception();
@@ -482,10 +512,10 @@ class V1_Controller extends Controller {
           $result = $this->error_data('No courses found');
         }
 
-      } else if (eregi('^[a-z0-9\'" \-]+$', $query)) {
+      } else if (preg_match('/^[a-z0-9\'" \-]+$/i', $query)) {
         $perpage = $this->input->get('perpage', '10');
         $page = $this->input->get('page', '0');
-        if (ereg('^[0-9]+$', $perpage) && ereg('^[0-9]+$', $page)) {
+        if (preg_match('/^[0-9]+$/', $perpage) && preg_match('/^[0-9]+$/', $page)) {
           $results = $db->
             from('courses')->
             where('MATCH (title, description) AGAINST ("'.mysql_escape_string($query).'")')->
@@ -638,10 +668,10 @@ class V1_Controller extends Controller {
     if ($query) {
       $db = Database::instance('uwdata_schedule');
 
-      if (eregi('^[a-z\'" \-]+$', $query)) {
+      if (preg_match('/^[a-z\'" \-]+$/i', $query)) {
         $perpage = $this->input->get('perpage', '10');
         $page = $this->input->get('page', '0');
-        if (ereg('^[0-9]+$', $perpage) && ereg('^[0-9]+$', $page)) {
+        if (preg_match('/^[0-9]+$/', $perpage) && preg_match('/^[0-9]+$/', $page)) {
 
           $results = $this->select_detailed_prof_info($db)->
             from('instructors')->
@@ -717,6 +747,63 @@ class V1_Controller extends Controller {
     }
 
     $this->echo_formatted_data(array('terms' => $result), $return_type);
+  }
+
+  //////////////////////////////////
+  //////////////////////////////////
+
+  /**
+   * Dump all courses in the given file format for the active term.
+   *
+   * endpoint: v1/dump/courses.<return type>
+   */
+  private function dump_courses($return_type) {
+    $db = $this->get_db();
+
+    $result = $db->
+      from('courses')->
+      select(
+        'cid',
+        'faculty_acronym',
+        'course_number',
+        'title',
+        'description',
+        'has_lec',
+        'has_lab',
+        'has_tst',
+        'has_tut',
+        'has_prj',
+        'credit_value',
+        'has_dist_ed',
+        'only_dist_ed',
+        'has_stj',
+        'only_stj',
+        'has_ren',
+        'only_ren',
+        'has_cgr',
+        'only_cgr',
+        'needs_dept_consent',
+        'needs_instr_consent',
+        'avail_fall',
+        'avail_winter',
+        'avail_spring',
+        'prereq_desc',
+        'antireq_desc',
+        'crosslist_desc',
+        'coreq_desc',
+        'note_desc',
+        'src_url')->
+      get();
+
+    $courses = array();
+    foreach ($result as $row) {
+      if ($return_type == 'xml') {
+        $row->antireq_desc = htmlentities($row->antireq_desc);
+      }
+      $courses []= array('course' => $row);
+    }
+    
+    $this->echo_formatted_data(array('courses' => $courses), $return_type);
   }
 
   //////////////////////////////////
@@ -948,7 +1035,7 @@ class V1_Controller extends Controller {
 
   private function get_db($calendar_years = null) {
     $cal_year = $calendar_years ? $calendar_years : $this->input->get('cal', '20102011');
-    if (!ereg('^[0-9]+$', $cal_year)) {
+    if (!preg_match('/^[0-9]+$/', $cal_year)) {
       return null;
     }
 
@@ -1052,7 +1139,7 @@ class V1_Controller extends Controller {
       }
     }
 
-    if (!ereg('^[0-9]+$', $term)) {
+    if (!preg_match('/^[0-9]+$/', $term)) {
       throw new Kohana_Exception();
     }
 
