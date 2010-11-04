@@ -64,6 +64,12 @@ Examples
 * [Term List](#term_list)
 </div>
 
+<div class="block" markdown="1">
+### Dump
+
+* [Courses](#dump_courses)
+</div>
+
 </div>
 <div class="clearfix"></div>
 
@@ -938,3 +944,160 @@ A list of all known academic terms.
 
 [^1]: Real time here means once an hour, between the hours of 8am and 8pm.
 
+
+### v1/dump/courses.[xml|json] {#dump_courses}
+
+A straight dump of all course information for a given calendar year.
+
+#### Optional parameters:
+
+* `cal` The calendar years to check. Default: the latest calendar year. Example: `&cal=20072008`.
+
+#### Example JSON response for [/v1/dump/courses.json](http://api.uwdata.ca/v1/dump/courses.json):
+
+    {
+      "courses": [
+        {
+          "course": {
+            "antireq_desc": "",
+            "avail_spring": "0",
+            "has_cgr": "0",
+            "note_desc": "",
+            "prereq_desc": "Prereq: OPTOM 342A; Optometry students only",
+            "avail_winter": "0",
+            "faculty_acronym": "OPTOM",
+            "src_url": "http://www.ucalendar.uwaterloo.ca/1011/COURSE/course-OPTOM.html#OPTOM342B",
+            "avail_fall": "0",
+            "has_ren": "0",
+            "only_stj": "0",
+            "title": "Case Analysis and Optometric Therapies 2",
+            "has_prj": "0",
+            "has_tut": "1",
+            "needs_dept_consent": "0",
+            "has_stj": "0",
+            "course_number": "342B",
+            "needs_instr_consent": "0",
+            "only_cgr": "0",
+            "only_dist_ed": "0",
+            "has_tst": "0",
+            "has_lec": "1",
+            "description": "A continuation of Optometry 342A. Emphasis is placed on the differential diagnostic method of analyzing clinical data with special emphasis on refractive and binocular vision conditions.",
+            "cid": "10389",
+            "crosslist_desc": "",
+            "credit_value": "0.5",
+            "coreq_desc": "",
+            "only_ren": "0",
+            "has_dist_ed": "0",
+            "has_lab": "0"
+          }
+        },
+        ...
+        {
+          "course": {
+            "antireq_desc": "",
+            "avail_spring": "0",
+            "has_cgr": "0",
+            "note_desc": "",
+            "prereq_desc": "Prereq: Level at least 3A Science and Business students",
+            "avail_winter": "0",
+            "faculty_acronym": "SCBUS",
+            "src_url": "http://www.ucalendar.uwaterloo.ca/1011/COURSE/course-SCBUS.html#SCBUS425",
+            "avail_fall": "0",
+            "has_ren": "0",
+            "only_stj": "0",
+            "title": "Science & Business Workshop 6",
+            "has_prj": "0",
+            "has_tut": "0",
+            "needs_dept_consent": "0",
+            "has_stj": "0",
+            "course_number": "425",
+            "needs_instr_consent": "0",
+            "only_cgr": "0",
+            "only_dist_ed": "0",
+            "has_tst": "0",
+            "has_lec": "1",
+            "description": "This workshop addresses the implications for Canadian science and technology based firms of competing in the global competitive environment. [Offered: W]",
+            "cid": "12257",
+            "crosslist_desc": "",
+            "credit_value": "0.5",
+            "coreq_desc": "",
+            "only_ren": "0",
+            "has_dist_ed": "0",
+            "has_lab": "1"
+          }
+        }
+      ]
+    }
+
+#### Example XML response for [/v1/term/list.xml](http://api.uwdata.ca/v1/term/list.xml):
+
+    <?= '<?xml version="1.0" encoding="UTF-8"?>'."\n" ?>
+    <result>
+      <courses>
+        <course>
+          <cid>10389</cid>
+          <faculty_acronym>OPTOM</faculty_acronym>
+          <course_number>342B</course_number>
+          <title>Case Analysis and Optometric Therapies 2</title>
+          <description>A continuation of Optometry 342A. Emphasis is placed on the differential diagnostic method of analyzing clinical data with special emphasis on refractive and binocular vision conditions.</description>
+          <has_lec>1</has_lec>
+          <has_lab>0</has_lab>
+          <has_tst>0</has_tst>
+          <has_tut>1</has_tut>
+          <has_prj>0</has_prj>
+          <credit_value>0.5</credit_value>
+          <has_dist_ed>0</has_dist_ed>
+          <only_dist_ed>0</only_dist_ed>
+          <has_stj>0</has_stj>
+          <only_stj>0</only_stj>
+          <has_ren>0</has_ren>
+          <only_ren>0</only_ren>
+          <has_cgr>0</has_cgr>
+          <only_cgr>0</only_cgr>
+          <needs_dept_consent>0</needs_dept_consent>
+          <needs_instr_consent>0</needs_instr_consent>
+          <avail_fall>0</avail_fall>
+          <avail_winter>0</avail_winter>
+          <avail_spring>0</avail_spring>
+          <prereq_desc>Prereq: OPTOM 342A; Optometry students only</prereq_desc>
+          <antireq_desc/>
+          <crosslist_desc/>
+          <coreq_desc/>
+          <note_desc/>
+          <src_url>http://www.ucalendar.uwaterloo.ca/1011/COURSE/course-OPTOM.html#OPTOM342B</src_url>
+        </course>
+        ...
+        <course>
+          <cid>12257</cid>
+          <faculty_acronym>SCBUS</faculty_acronym>
+          <course_number>425</course_number>
+          <title>Science&amp;Business Workshop 6</title>
+          <description>This workshop addresses the implications for Canadian science and technology based firms of competing in the global competitive environment. [Offered: W]</description>
+          <has_lec>1</has_lec>
+          <has_lab>1</has_lab>
+          <has_tst>0</has_tst>
+          <has_tut>0</has_tut>
+          <has_prj>0</has_prj>
+          <credit_value>0.5</credit_value>
+          <has_dist_ed>0</has_dist_ed>
+          <only_dist_ed>0</only_dist_ed>
+          <has_stj>0</has_stj>
+          <only_stj>0</only_stj>
+          <has_ren>0</has_ren>
+          <only_ren>0</only_ren>
+          <has_cgr>0</has_cgr>
+          <only_cgr>0</only_cgr>
+          <needs_dept_consent>0</needs_dept_consent>
+          <needs_instr_consent>0</needs_instr_consent>
+          <avail_fall>0</avail_fall>
+          <avail_winter>0</avail_winter>
+          <avail_spring>0</avail_spring>
+          <prereq_desc>Prereq: Level at least 3A Science and Business students</prereq_desc>
+          <antireq_desc/>
+          <crosslist_desc/>
+          <coreq_desc/>
+          <note_desc/>
+          <src_url>http://www.ucalendar.uwaterloo.ca/1011/COURSE/course-SCBUS.html#SCBUS425</src_url>
+        </course>
+      </courses>
+    </result>
