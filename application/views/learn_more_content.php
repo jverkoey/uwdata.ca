@@ -68,6 +68,7 @@ Examples
 ### Dump
 
 * [Courses](#dump_courses)
+* [Schedules](#dump_schedules)
 </div>
 
 </div>
@@ -76,7 +77,7 @@ Examples
 API Version 1
 -------------
 
-### v1/faculty/list.[xml|json] {#faculty_list}
+### v1/faculty/list.[xml|json|csv] {#faculty_list}
 
 A list of all faculties in the school for any given year.
 
@@ -130,7 +131,7 @@ A list of all faculties in the school for any given year.
       </faculties>
     </result>
 
-### v1/faculty/[faculty acronym].[xml|json] {#faculty_by_id}
+### v1/faculty/[faculty acronym].[xml|json|csv] {#faculty_by_id}
 
 Detailed information about the given faculty for any given year.
 
@@ -160,7 +161,7 @@ Detailed information about the given faculty for any given year.
     </result>
 
 
-### v1/faculty/[faculty acronym]/courses.[xml|json] {#faculty_courses}
+### v1/faculty/[faculty acronym]/courses.[xml|json|csv] {#faculty_courses}
 
 All of the courses in the given faculty.
 
@@ -228,8 +229,8 @@ All of the courses in the given faculty.
     </result>
 
 
-### v1/course/[faculty acronym]/[course number].[xml|json] {#course_by_number}
-### v1/course/[course id].[xml|json] {#course_by_id}
+### v1/course/[faculty acronym]/[course number].[xml|json|csv] {#course_by_number}
+### v1/course/[course id].[xml|json|csv] {#course_by_id}
 
 Detailed information about the given course, retrieved by faculty and course number or course
 calendar id. Both endpoints return the same data.
@@ -318,8 +319,8 @@ calendar id. Both endpoints return the same data.
     </result>
 
 
-### v1/course/[faculty acronym]/[course number]/prereqs.[xml|json] {#course_prereqs_by_number}
-### v1/course/[course id]/prereqs.[xml|json] {#course_prereqs_by_id}
+### v1/course/[faculty acronym]/[course number]/prereqs.[xml|json|csv] {#course_prereqs_by_number}
+### v1/course/[course id]/prereqs.[xml|json|csv] {#course_prereqs_by_id}
 
 The prerequisite logic for the given course, retrieved by faculty and course number or course
 calendar id. Both endpoints return the same data.
@@ -394,8 +395,8 @@ calendar id. Both endpoints return the same data.
     </result>
 
 
-### v1/course/[faculty acronym]/[course number]/schedule.[xml|json] {#course_schedule_by_number}
-### v1/course/[course id]/schedule.[xml|json] {#course_schedule_by_id}
+### v1/course/[faculty acronym]/[course number]/schedule.[xml|json|csv] {#course_schedule_by_number}
+### v1/course/[course id]/schedule.[xml|json|csv] {#course_schedule_by_id}
 
 The schedule for the given course, retrieved by faculty and course number or course
 calendar id. Both endpoints return the same data.
@@ -483,7 +484,7 @@ calendar id. Both endpoints return the same data.
 
 
 
-### v1/course/search.[xml|json] {#course_search}
+### v1/course/search.[xml|json|csv] {#course_search}
 
 Search the course list by title and description.
 
@@ -657,7 +658,7 @@ Search the course list by title and description.
     </result>
 
 
-### v1/prof/[professor id].[xml|json] {#prof_by_id}
+### v1/prof/[professor id].[xml|json|csv] {#prof_by_id}
 
 Detailed information about the given professor.
 
@@ -693,7 +694,7 @@ Detailed information about the given professor.
     </result>
 
 
-### v1/prof/[professor id]/timeslots.[xml|json] {#prof_timeslots}
+### v1/prof/[professor id]/timeslots.[xml|json|csv] {#prof_timeslots}
 
 All of the class timeslots the given professor is running.
 
@@ -807,7 +808,7 @@ All of the class timeslots the given professor is running.
     </result>
 
 
-### v1/prof/search.[xml|json] {#prof_search}
+### v1/prof/search.[xml|json|csv] {#prof_search}
 
 Search the professor list by first and last name.
 
@@ -867,7 +868,7 @@ Search the professor list by first and last name.
     </result>
 
 
-### v1/term/list.[xml|json] {#term_list}
+### v1/term/list.[xml|json|csv] {#term_list}
 
 A list of all known academic terms.
 
@@ -942,16 +943,14 @@ A list of all known academic terms.
       </terms>
     </result>
 
-[^1]: Real time here means once an hour, between the hours of 8am and 8pm.
 
-
-### v1/dump/courses.[xml|json] {#dump_courses}
+### v1/dump/courses.[xml|json|csv] {#dump_courses}
 
 A straight dump of all course information for a given calendar year.
 
 #### Optional parameters:
 
-* `cal` The calendar years to check. Default: the latest calendar year. Example: `&cal=20072008`.
+* `cal` The calendar years to dump. Default: the latest calendar year. Example: `&cal=20072008`.
 
 #### Example JSON response for [/v1/dump/courses.json](http://api.uwdata.ca/v1/dump/courses.json):
 
@@ -1029,7 +1028,7 @@ A straight dump of all course information for a given calendar year.
       ]
     }
 
-#### Example XML response for [/v1/term/list.xml](http://api.uwdata.ca/v1/term/list.xml):
+#### Example XML response for [/v1/dump/courses.xml](http://api.uwdata.ca/v1/dump/courses.xml):
 
     <?= '<?xml version="1.0" encoding="UTF-8"?>'."\n" ?>
     <result>
@@ -1101,3 +1100,165 @@ A straight dump of all course information for a given calendar year.
         </course>
       </courses>
     </result>
+
+
+### v1/dump/schedules.[xml|json|csv] {#dump_schedules}
+
+A straight dump of all schedule information for a given term.
+
+#### Optional parameters:
+
+* `term` The academic term id to check. Default: the latest academic term. Example: `&term=1101`.
+* `since` The earliest time stamp of data to return. Default: return all data. Example: `&since=2010-11-04%2014:00:08` Please note the %20 to indicate a space between the date and time.
+
+#### Example JSON response for [/v1/dump/schedules.json](http://api.uwdata.ca/v1/dump/schedules.json):
+
+    {
+      "schedule": [
+        {
+          "class": {
+            "instructor": "",
+            "building": "MC",
+            "enrollment_total": "179",
+            "associated_class": "1",
+            "end_time": "1620",
+            "campus_location": "UW    U",
+            "faculty_acronym": "ACTSC",
+            "title": "Mathematics of Finance",
+            "days": "M",
+            "tba_schedule": "0",
+            "component_section": "TUT 101",
+            "term": "1111",
+            "is_canceled": "0",
+            "is_closed": "0",
+            "enrollment_cap": "190",
+            "wait_tot": "0",
+            "course_number": "231",
+            "last_updated": "2010-11-03 20:00:16",
+            "note": "",
+            "related_component_1": "0",
+            "class_number": "5026",
+            "related_component_2": "0",
+            "instructor_id": "0",
+            "room": "2065",
+            "start_time": "1530",
+            "wait_cap": "0"
+          }
+        },
+        ...
+        {
+          "class": {
+            "instructor": "Muszynski,Alicja",
+            "building": "",
+            "enrollment_total": "0",
+            "associated_class": "1",
+            "end_time": "0",
+            "campus_location": "UW    U",
+            "faculty_acronym": "WS",
+            "title": "Senior Honours Thesis",
+            "days": "",
+            "tba_schedule": "1",
+            "component_section": "RDG 001",
+            "term": "1111",
+            "is_canceled": "0",
+            "is_closed": "0",
+            "enrollment_cap": "1",
+            "wait_tot": "0",
+            "course_number": "499B",
+            "last_updated": "2010-06-21 08:08:36",
+            "note": "",
+            "related_component_1": "0",
+            "class_number": "6890",
+            "related_component_2": "0",
+            "instructor_id": "0",
+            "room": "",
+            "start_time": "0",
+            "wait_cap": "0"
+          }
+        }
+      ]
+    }
+
+#### Example XML response for [/v1/dump/schedules.xml](http://api.uwdata.ca/v1/dump/schedules.xml):
+
+    <?= '<?xml version="1.0" encoding="UTF-8"?>'."\n" ?>
+    <result>
+      <schedule>
+        <class>
+          <class_number>5026</class_number>
+          <term>1111</term>
+          <faculty_acronym>ACTSC</faculty_acronym>
+          <course_number>231</course_number>
+          <component_section>TUT 101</component_section>
+          <campus_location>UW    U</campus_location>
+          <associated_class>1</associated_class>
+          <related_component_1>0</related_component_1>
+          <related_component_2>0</related_component_2>
+          <enrollment_cap>190</enrollment_cap>
+          <enrollment_total>179</enrollment_total>
+          <wait_cap>0</wait_cap>
+          <wait_tot>0</wait_tot>
+          <tba_schedule>0</tba_schedule>
+          <start_time>1530</start_time>
+          <end_time>1620</end_time>
+          <days>M</days>
+          <is_closed>0</is_closed>
+          <is_canceled>0</is_canceled>
+          <building>MC</building>
+          <room>2065</room>
+          <instructor/>
+          <instructor_id>0</instructor_id>
+          <note/>
+          <last_updated>2010-11-03 20:00:16</last_updated>
+          <title>Mathematics of Finance</title>
+        </class>
+        ...
+        <class>
+          <class_number>6890</class_number>
+          <term>1111</term>
+          <faculty_acronym>WS</faculty_acronym>
+          <course_number>499B</course_number>
+          <component_section>RDG 001</component_section>
+          <campus_location>UW    U</campus_location>
+          <associated_class>1</associated_class>
+          <related_component_1>0</related_component_1>
+          <related_component_2>0</related_component_2>
+          <enrollment_cap>1</enrollment_cap>
+          <enrollment_total>0</enrollment_total>
+          <wait_cap>0</wait_cap>
+          <wait_tot>0</wait_tot>
+          <tba_schedule>1</tba_schedule>
+          <start_time>0</start_time>
+          <end_time>0</end_time>
+          <days/>
+          <is_closed>0</is_closed>
+          <is_canceled>0</is_canceled>
+          <building/>
+          <room/>
+          <instructor>Muszynski,Alicja</instructor>
+          <instructor_id>0</instructor_id>
+          <note/>
+          <last_updated>2010-06-21 08:08:36</last_updated>
+          <title>Senior Honours Thesis</title>
+        </class>
+      </schedule>
+    </result>
+
+#### Example CSV response for [/v1/dump/schedules.csv](http://api.uwdata.ca/v1/dump/schedules.csv):
+
+    class_number,term,faculty_acronym,course_number,component_section,campus_location,associated_class,related_component_1,related_component_2,enrollment_cap,enrollment_total,wait_cap,wait_tot,tba_schedule,start_time,end_time,days,is_closed,is_canceled,building,room,instructor,instructor_id,note,last_updated,title
+    5026,1111,ACTSC,231,"TUT 101","UW    U",1,0,0,190,179,0,0,0,1530,1620,M,0,0,MC,2065,,0,,"2010-11-03 20:00:16","Mathematics of Finance"
+    5025,1111,ACTSC,231,"LEC 001","UW    U",1,101,0,190,179,0,0,0,1330,1420,MWF,0,0,MC,2065,"Weng,Chengguo",0,,"2010-11-03 20:00:16","Mathematics of Finance"
+    5217,1111,ACTSC,232,"TUT 101","UW    U",1,0,0,190,190,0,0,0,1430,1520,M,0,0,MC,2066,,0,,"2010-11-04 13:00:08","Introduction to Actuarial Mathematics"
+    5027,1111,ACTSC,232,"LEC 001","UW    U",1,101,0,190,190,0,0,0,1000,1120,TT,0,0,MC,2066,,0,,"2010-11-04 13:00:08","Introduction to Actuarial Mathematics"
+    5028,1111,ACTSC,331,"LEC 001","UW    U",1,101,0,120,118,0,0,0,1430,1520,MWF,0,0,MC,4061,"Freeland,Robert Keith",0,,"2010-11-01 20:00:04","Life Contingencies 1"
+    5218,1111,ACTSC,331,"TUT 101","UW    U",1,0,0,120,118,0,0,0,1530,1620,W,0,0,MC,4061,,0,,"2010-11-01 20:00:04","Life Contingencies 1"
+    5271,1111,ACTSC,371,"LEC 001","UW    U",1,101,0,215,215,0,0,0,930,1020,MWF,0,0,AL,113,"Wood,Peter J",0,,"2010-11-04 08:00:53","Corporate Finance 1"
+    5272,1111,ACTSC,371,"TUT 101","UW    U",1,0,0,215,215,0,0,0,1630,1720,M,0,0,DC,1351,,0,,"2010-11-04 08:00:54","Corporate Finance 1"
+    5264,1111,ACTSC,372,"LEC 001","UW    U",1,101,0,225,207,0,0,0,2430,120,MWF,0,0,DC,1351,"Wood,Peter J",0,,"2010-11-02 08:00:24","Corporate Finance 2"
+    5265,1111,ACTSC,372,"TUT 101","UW    U",1,0,0,225,207,0,0,0,1730,1820,M,0,0,DC,1351,,0,,"2010-11-02 08:00:24","Corporate Finance 2"
+    5029,1111,ACTSC,433,"LEC 001","UW    U",1,0,0,132,74,0,0,0,1300,1420,TT,0,0,MC,1085,"Zou,Xiaorong",0,,"2010-10-29 14:00:19","Analysis of Survival Data"
+    5030,1111,ACTSC,446,"LEC 001","UW    U",1,101,0,130,97,0,0,0,1430,1550,TT,0,0,MC,2066,"Zou,Xiaorong",0,,"2010-11-03 16:00:13",
+    5534,1111,ACTSC,446,"LEC 002","UW    U",2,102,0,100,99,0,0,0,1130,1250,TT,0,0,MC,4059,"Freeland,Robert Keith",0,,"2010-11-01 14:00:13",
+
+[^1]: Real time here means once an hour, between the hours of 8am and 8pm.

@@ -241,7 +241,10 @@ class V1_Controller extends Controller {
   /**
    * Possible endpoints:
    *   v1/dump/courses.<return type>
-   *   - A list of all courses for the active term.
+   *   - A dump of all courses for the active calendar year.
+   *     dump_courses
+   *   v1/dump/schedules.<return type>
+   *   - A dump of all schedule information for the given term.
    *     dump_courses
    */
 	public function dump($param1, $param2 = null, $param3 = null) {
@@ -258,6 +261,17 @@ class V1_Controller extends Controller {
       if (!$param2) {
         // v1/dump/courses.<return type>
         $this->dump_courses($return_type);
+
+      } else {
+        throw new Kohana_404_Exception();
+      }
+
+    } else if (preg_match('/^schedules$/i', $param1)) {
+      // v1/dump/schedules
+
+      if (!$param2) {
+        // v1/dump/schedules.<return type>
+        $this->dump_schedules($return_type);
 
       } else {
         throw new Kohana_404_Exception();
@@ -758,41 +772,10 @@ class V1_Controller extends Controller {
    * endpoint: v1/dump/courses.<return type>
    */
   private function dump_courses($return_type) {
-    $db = $this->get_db();
+    $db = $this->select_detailed_course_info($this->get_db());
 
     $result = $db->
       from('courses')->
-      select(
-        'cid',
-        'faculty_acronym',
-        'course_number',
-        'title',
-        'description',
-        'has_lec',
-        'has_lab',
-        'has_tst',
-        'has_tut',
-        'has_prj',
-        'credit_value',
-        'has_dist_ed',
-        'only_dist_ed',
-        'has_stj',
-        'only_stj',
-        'has_ren',
-        'only_ren',
-        'has_cgr',
-        'only_cgr',
-        'needs_dept_consent',
-        'needs_instr_consent',
-        'avail_fall',
-        'avail_winter',
-        'avail_spring',
-        'prereq_desc',
-        'antireq_desc',
-        'crosslist_desc',
-        'coreq_desc',
-        'note_desc',
-        'src_url')->
       get();
 
     $courses = array();
@@ -804,6 +787,48 @@ class V1_Controller extends Controller {
     }
     
     $this->echo_formatted_data(array('courses' => $courses), $return_type);
+  }
+
+  /**
+   * Dump all schedules in the given file format for the active term.
+   *
+   * endpoint: v1/dump/schedules.<return type>
+   */
+  private function dump_schedules($return_type) {
+    $term = $this->get_term_input();
+    
+    $db = $this->select_detailed_class_info(Database::instance('uwdata_schedule'));
+
+    $since = $this->input->get('since');
+    if ($since) {
+      $db->where('__last_touched > "'.mysql_escape_string($since).'"');
+    }
+
+    $result = $db->
+      from('classes')->
+      where('term', $term)->
+      get();
+
+    $classes = array();
+    foreach ($result as $row) {
+      
+      $course_result = $this->fetch_course_by_number($row->faculty_acronym, $row->course_number);
+      if (!empty($course_result)) {
+        $course = null;
+        foreach ($course_result as $course_row) {
+          $course = $course_row;
+        }
+        if (isset($course->title)) {
+          $row->title = $course->title;
+        } else {
+          $row->title = '';
+        }
+      }
+        
+      $classes []= array('class' => $row);
+    }
+
+    $this->echo_formatted_data(array('schedule' => $classes), $return_type);
   }
 
   //////////////////////////////////
@@ -1096,6 +1121,33 @@ class V1_Controller extends Controller {
         $dom->formatOutput = true;
         $dom->loadXML($xml->asXML());
         echo $dom->saveXML();
+        break;
+      }
+
+      case 'csv': {
+        header('Content-type: text/csv');
+
+        $outstream = fopen("php://output", 'w');
+
+        if (!isset($data[0])) {
+          $data = current($data);
+        }
+        $firstElm = current($data);
+        if (!isset($firstElm[0])) {
+          fputcsv($outstream, array_keys(get_object_vars(current(current($data)))), ',', '"');
+        } else {
+          fputcsv($outstream, array_keys(get_object_vars(current($data))), ',', '"');
+        }
+        function __outputCSV(&$vals, $key, $filehandler) {
+          if (!isset($vals[0])) {
+            fputcsv($filehandler, get_object_vars(current($vals)), ',', '"');
+          } else {
+            fputcsv($filehandler, get_object_vars($vals), ',', '"');
+          }
+        }
+        array_walk($data, '__outputCSV', $outstream);
+
+        fclose($outstream);
         break;
       }
 
