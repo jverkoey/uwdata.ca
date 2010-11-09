@@ -7,7 +7,7 @@
  */
 class V1_Controller extends Controller {
 
-	const ALLOW_PRODUCTION = TRUE;
+  const ALLOW_PRODUCTION = TRUE;
 
   private function add_log($action, $param1, $param2, $param3) {
     $api_key = $this->input->get('key');
@@ -45,11 +45,11 @@ class V1_Controller extends Controller {
    *   - All of the courses in the given faculty.
    *     faculty_courses
    */
-	public function faculty($param1, $param2 = null, $param3 = null) {
-	  $return_type = $this->init_action($param1, $param2, $param3);
-	  if (!$return_type) {
-	    return;
-	  }
+  public function faculty($param1, $param2 = null, $param3 = null) {
+    $return_type = $this->init_action($param1, $param2, $param3);
+    if (!$return_type) {
+      return;
+    }
 
     $this->add_log('faculty', $param1, $param2, $param3);
 
@@ -79,7 +79,7 @@ class V1_Controller extends Controller {
     } else {
       throw new Kohana_404_Exception();
     }
-	}
+  }
 
   /**
    * Possible endpoints:
@@ -105,11 +105,11 @@ class V1_Controller extends Controller {
    *   - Search the course list by title and description.
    *     course_search
    */
-	public function course($param1, $param2 = null, $param3 = null) {
-	  $return_type = $this->init_action($param1, $param2, $param3);
-	  if (!$return_type) {
-	    return;
-	  }
+  public function course($param1, $param2 = null, $param3 = null) {
+    $return_type = $this->init_action($param1, $param2, $param3);
+    if (!$return_type) {
+      return;
+    }
 
     $this->add_log('course', $param1, $param2, $param3);
 
@@ -161,7 +161,7 @@ class V1_Controller extends Controller {
     } else {
       throw new Kohana_404_Exception();
     }
-	}
+  }
 
   /**
    * Possible endpoints:
@@ -175,11 +175,11 @@ class V1_Controller extends Controller {
    *   - Search the professor list by first and last name.
    *     prof_search
    */
-	public function prof($param1, $param2 = null, $param3 = null) {
-	  $return_type = $this->init_action($param1, $param2, $param3);
-	  if (!$return_type) {
-	    return;
-	  }
+  public function prof($param1, $param2 = null, $param3 = null) {
+    $return_type = $this->init_action($param1, $param2, $param3);
+    if (!$return_type) {
+      return;
+    }
 
     $this->add_log('prof', $param1, $param2, $param3);
 
@@ -208,7 +208,7 @@ class V1_Controller extends Controller {
     } else {
       throw new Kohana_404_Exception();
     }
-	}
+  }
 
   /**
    * Possible endpoints:
@@ -216,11 +216,11 @@ class V1_Controller extends Controller {
    *   - A list of all academic terms.
    *     term_list
    */
-	public function term($param1, $param2 = null, $param3 = null) {
-	  $return_type = $this->init_action($param1, $param2, $param3);
-	  if (!$return_type) {
-	    return;
-	  }
+  public function term($param1, $param2 = null, $param3 = null) {
+    $return_type = $this->init_action($param1, $param2, $param3);
+    if (!$return_type) {
+      return;
+    }
 
     $this->add_log('term', $param1, $param2, $param3);
 
@@ -236,7 +236,7 @@ class V1_Controller extends Controller {
     } else {
       throw new Kohana_404_Exception();
     }
-	}
+  }
 
   /**
    * Possible endpoints:
@@ -247,11 +247,11 @@ class V1_Controller extends Controller {
    *   - A dump of all schedule information for the given term.
    *     dump_courses
    */
-	public function dump($param1, $param2 = null, $param3 = null) {
-	  $return_type = $this->init_action($param1, $param2, $param3);
-	  if (!$return_type) {
-	    return;
-	  }
+  public function dump($param1, $param2 = null, $param3 = null) {
+    $return_type = $this->init_action($param1, $param2, $param3);
+    if (!$return_type) {
+      return;
+    }
 
     $this->add_log('dump', $param1, $param2, $param3);
 
@@ -280,7 +280,7 @@ class V1_Controller extends Controller {
     } else {
       throw new Kohana_404_Exception();
     }
-	}
+  }
 
   //////////////////////////////////
   //////////////////////////////////
@@ -314,12 +314,12 @@ class V1_Controller extends Controller {
   private function faculty_by_id($id, $return_type) {
     $db = $this->get_db();
 
-	  $result = $db->
-	    from('faculties')->
-	    select('acronym', 'name', '__last_touched as last_updated')->
-	    where('acronym', $id)->
-	    limit(1)->
-	    get();
+    $result = $db->
+      from('faculties')->
+      select('acronym', 'name', '__last_touched as last_updated')->
+      where('acronym', $id)->
+      limit(1)->
+      get();
 
     if (count($result)) {
       foreach ($result as $row) {
@@ -1064,7 +1064,7 @@ class V1_Controller extends Controller {
       return null;
     }
 
-	  $db = Database::instance('uwdata_'.$cal_year);
+    $db = Database::instance('uwdata_'.$cal_year);
 
     return $db;
   }
@@ -1077,15 +1077,15 @@ class V1_Controller extends Controller {
     foreach ($data as $name => $objectdata) {
       if (is_array($objectdata) || is_object($objectdata)) {
         $object = $xml->addChild($name);
-    		foreach ($objectdata as $key => $item) {
-    		  if (is_array($item)) {
-    		    $this->create_xml_object($object, $item);
-        	} else {
-        	  $object->addChild($key, $this->clean_xml_data($item));
-        	}
+        foreach ($objectdata as $key => $item) {
+          if (is_array($item)) {
+            $this->create_xml_object($object, $item);
+          } else {
+            $object->addChild($key, $this->clean_xml_data($item));
+          }
         }
       } else {
-    	  $xml->addChild($name, $this->clean_xml_data($objectdata));
+        $xml->addChild($name, $this->clean_xml_data($objectdata));
       }
     }
   }
@@ -1111,8 +1111,8 @@ class V1_Controller extends Controller {
       case 'xml': {
         header('Content-type: application/xml');
 
-  		  $xml = '<?xml version="1.0" encoding="UTF-8"?><result></result>';
-    		$xml = simplexml_load_string($xml);
+        $xml = '<?xml version="1.0" encoding="UTF-8"?><result></result>';
+        $xml = simplexml_load_string($xml);
 
         $this->create_xml_object($xml, $data);
 
