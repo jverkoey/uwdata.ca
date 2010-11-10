@@ -54,19 +54,16 @@ $tables = array(
   '20032004',
   '20022003',
   '20012002',
+  'schedule',
+  'logs',
+  'geo',
+  'weather',
   //'20002001',
 );
-foreach ($tables as $years) {
-  $config['uwdata_'.$years] = $config['default'];
-  $config['uwdata_'.$years]['connection']['database'] = 'uwdata_'.$years;
+foreach ($tables as $name) {
+  $config['uwdata_'.$name] = $config['default'];
+  $config['uwdata_'.$name]['connection']['database'] = 'uwdata_'.$name;
 }
-
-$config['uwdata_schedule'] = $config['default'];
-$config['uwdata_schedule']['connection']['database'] = 'uwdata_schedule';
 
 $config['uwdata'] = $config['default'];
 $config['uwdata']['connection']['database'] = 'uwdata';
-
-$config['uwdata_logs'] = $config['default'];
-$config['uwdata_logs']['connection']['database'] = 'uwdata_logs';
-

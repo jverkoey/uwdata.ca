@@ -240,6 +240,50 @@ class V1_Controller extends Controller {
 
   /**
    * Possible endpoints:
+   *   v1/geo/building/list.<return type>
+   *   - A list of all buildings.
+   *     geo_building_list
+   *   v1/geo/parking/list.<return type>
+   *   - A list of all parking lots.
+   *     geo_parking_list
+   */
+  public function geo($param1, $param2 = null, $param3 = null) {
+    $return_type = $this->init_action($param1, $param2, $param3);
+    if (!$return_type) {
+      return;
+    }
+
+    $this->add_log('geo', $param1, $param2, $param3);
+
+    if (preg_match('/^building$/i', $param1)) {
+      // v1/geo/building/<text>
+
+      if (preg_match('/^list$/i', $param2)) {
+        // v1/geo/building/list.<return type>
+        $this->geo_building_list($return_type);
+
+      } else {
+        throw new Kohana_404_Exception();
+      }
+
+    } else if (preg_match('/^parking$/i', $param1)) {
+      // v1/geo/parking/<text>
+
+      if (preg_match('/^list$/i', $param2)) {
+        // v1/geo/parking/list.<return type>
+        $this->geo_parking_list($return_type);
+
+      } else {
+        throw new Kohana_404_Exception();
+      }
+
+    } else {
+      throw new Kohana_404_Exception();
+    }
+  }
+
+  /**
+   * Possible endpoints:
    *   v1/dump/courses.<return type>
    *   - A dump of all courses for the active calendar year.
    *     dump_courses
@@ -356,6 +400,51 @@ class V1_Controller extends Controller {
     }
 
     $this->echo_formatted_data(array('courses' => $courses), $return_type);
+  }
+
+  //////////////////////////////////
+  //////////////////////////////////
+
+  /**
+   * A list of all buildings.
+   *
+   * endpoint: v1/geo/building/list.<return type>
+   */
+  private function geo_building_list($return_type) {
+    $db = Database::instance('uwdata_geo');
+
+    $results = $db->
+      from('buildings')->
+      select(array('name', 'short_name', 'lat', 'lng'))->
+      get();
+
+    $result = array();
+    foreach ($results as $row) {
+      $result []= array('building' => $row);
+    }
+
+    $this->echo_formatted_data(array('buildings' => $result), $return_type);
+  }
+
+  /**
+   * A list of all parking lots.
+   *
+   * endpoint: v1/geo/parking/list.<return type>
+   */
+  private function geo_parking_list($return_type) {
+    $db = Database::instance('uwdata_geo');
+
+    $results = $db->
+      from('parking')->
+      select(array('name', 'type', 'payment_type', 'max_cost', 'hourly_cost', 'weekend_cost', 'after5_cost', 'lat', 'lng'))->
+      get();
+
+    $result = array();
+    foreach ($results as $row) {
+      $result []= array('lot' => $row);
+    }
+
+    $this->echo_formatted_data(array('parking_lots' => $result), $return_type);
   }
 
   //////////////////////////////////

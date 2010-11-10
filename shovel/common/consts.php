@@ -1,5 +1,7 @@
 <?php
 
+date_default_timezone_set('EST');
+
 define('COURSE_CAL_ROOT_URL', 'http://ugradcalendar.uwaterloo.ca/');
 
 $calendar_urls = array(
