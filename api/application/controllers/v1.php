@@ -284,6 +284,36 @@ class V1_Controller extends Controller {
 
   /**
    * Possible endpoints:
+   *   v1/weather/current.<return type>
+   *   - The current weather
+   *     weather_current
+   */
+  public function weather($param1, $param2 = null, $param3 = null) {
+    $return_type = $this->init_action($param1, $param2, $param3);
+    if (!$return_type) {
+      return;
+    }
+
+    $this->add_log('weather', $param1, $param2, $param3);
+
+    if (preg_match('/^current$/i', $param1)) {
+      // v1/weather/current/
+
+      if (!$param2) {
+        // v1/weather/current.<return type>
+        $this->weather_current($return_type);
+
+      } else {
+        throw new Kohana_404_Exception();
+      }
+
+    } else {
+      throw new Kohana_404_Exception();
+    }
+  }
+
+  /**
+   * Possible endpoints:
    *   v1/dump/courses.<return type>
    *   - A dump of all courses for the active calendar year.
    *     dump_courses
@@ -445,6 +475,32 @@ class V1_Controller extends Controller {
     }
 
     $this->echo_formatted_data(array('parking_lots' => $result), $return_type);
+  }
+
+  //////////////////////////////////
+  //////////////////////////////////
+
+  /**
+   * The current weather
+   *
+   * endpoint: v1/weather/current.<return type>
+   */
+  private function weather_current($return_type) {
+    $db = Database::instance('uwdata_weather');
+
+    $results = $db->
+      from('readings')->
+      select()->
+      limit(1)->
+      orderby('timestamp', 'DESC')->
+      get();
+
+    $result = array();
+    foreach ($results as $row) {
+      $result = $row;
+    }
+
+    $this->echo_formatted_data($result, $return_type);
   }
 
   //////////////////////////////////
