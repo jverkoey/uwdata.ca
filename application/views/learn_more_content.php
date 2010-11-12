@@ -71,6 +71,13 @@ Examples
 </div>
 
 <div class="block" markdown="1">
+### Geo
+
+* [Building List](#building_list)
+* [Parking List](#parking_list)
+</div>
+
+<div class="block" markdown="1">
 ### Dump
 
 * [Courses](#dump_courses)
@@ -970,7 +977,7 @@ The current weather, updated every 15 minutes.
       "wind_direction": "NE"
     }
 
-#### Example XML response for [/v1/term/list.xml](http://api.uwdata.ca/v1/term/list.xml):
+#### Example XML response for [/v1/weather/current.xml](http://api.uwdata.ca/v1/weather/current.xml):
 
     <?= '<?xml version="1.0" encoding="UTF-8"?>'."\n" ?>
     <result>
@@ -986,6 +993,129 @@ The current weather, updated every 15 minutes.
       <barometric_direction>Rising</barometric_direction>
       <incoming_radiation>0</incoming_radiation>
     </result>
+
+
+
+### v1/geo/building/list.[xml|json|csv] {#building_list}
+
+Geographical location of all buildings on campus.
+
+#### Example JSON response for [/v1/geo/building/list.json](http://api.uwdata.ca/v1/geo/building/list.json):
+
+    {
+      "buildings": [
+        {
+          "building": {
+            "name": "Mathematics and Computer",
+            "lng": "-80.5439376831055",
+            "short_name": "MC",
+            "lat": "43.4719657897949"
+          }
+        },
+        ...
+        {
+          "building": {
+            "name": "Commissary (UW Police & Parking)",
+            "lng": "-80.5428085327148",
+            "short_name": "COM",
+            "lat": "43.4741401672363"
+          }
+        }
+      ]
+    }
+
+#### Example XML response for [/v1/geo/building/list.xml](http://api.uwdata.ca/v1/geo/building/list.xml):
+
+    <?= '<?xml version="1.0" encoding="UTF-8"?>'."\n" ?>
+    <result>
+      <buildings>
+        <building>
+          <name>Mathematics and Computer</name>
+          <short_name>MC</short_name>
+          <lat>43.4719657897949</lat>
+          <lng>-80.5439376831055</lng>
+        </building>
+        ...
+        <building>
+          <name>Commissary (UW Police&amp;Parking)</name>
+          <short_name>COM</short_name>
+          <lat>43.4741401672363</lat>
+          <lng>-80.5428085327148</lng>
+        </building>
+      </buildings>
+    </result>
+
+
+### v1/geo/parking/list.[xml|json|csv] {#parking_list}
+
+Geographical location of all parking lots on campus with cost per hour/daily cost.
+
+#### Example JSON response for [/v1/geo/parking/list.json](http://api.uwdata.ca/v1/geo/parking/list.json):
+
+    {
+      "parking_lots": [
+        {
+          "lot": {
+            "name": "N",
+            "after5_cost": null,
+            "lng": "-80.5446",
+            "weekend_cost": null,
+            "type": "visitor",
+            "lat": "43.474847",
+            "hourly_cost": null,
+            "max_cost": "3",
+            "payment_type": "payanddisplay"
+          }
+        },
+        ...
+        {
+          "lot": {
+            "name": "UWP",
+            "after5_cost": null,
+            "lng": "-80.53373",
+            "weekend_cost": null,
+            "type": "visitor",
+            "lat": "43.471297",
+            "hourly_cost": null,
+            "max_cost": "3",
+            "payment_type": "payanddisplay"
+          }
+        }
+      ]
+    }
+
+#### Example XML response for [/v1/geo/parking/list.xml](http://api.uwdata.ca/v1/geo/parking/list.xml):
+
+    <?= '<?xml version="1.0" encoding="UTF-8"?>'."\n" ?>
+    <result>
+      <parking_lots>
+        <lot>
+          <name>N</name>
+          <type>visitor</type>
+          <payment_type>payanddisplay</payment_type>
+          <max_cost>3</max_cost>
+          <hourly_cost/>
+          <weekend_cost/>
+          <after5_cost/>
+          <lat>43.474847</lat>
+          <lng>-80.5446</lng>
+        </lot>
+        ...
+        <lot>
+          <name>UWP</name>
+          <type>visitor</type>
+          <payment_type>payanddisplay</payment_type>
+          <max_cost>3</max_cost>
+          <hourly_cost/>
+          <weekend_cost/>
+          <after5_cost/>
+          <lat>43.471297</lat>
+          <lng>-80.53373</lng>
+        </lot>
+      </parking_lots>
+    </result>
+
+
 
 
 ### v1/dump/courses.[xml|json|csv] {#dump_courses}
