@@ -65,6 +65,12 @@ Examples
 </div>
 
 <div class="block" markdown="1">
+### Weather
+
+* [Current Weather](#current_weather)
+</div>
+
+<div class="block" markdown="1">
 ### Dump
 
 * [Courses](#dump_courses)
@@ -941,6 +947,44 @@ A list of all known academic terms.
           <last_updated>2010-01-17 21:35:01</last_updated>
         </term>
       </terms>
+    </result>
+
+
+### v1/weather/current.[xml|json|csv] {#current_weather}
+
+The current weather, updated every 15 minutes.
+
+#### Example JSON response for [/v1/weather/current.json](http://api.uwdata.ca/v1/weather/current.json):
+
+    {
+      "temp": "2",
+      "temp_24hourmax": "13.9",
+      "timestamp": "2010-11-09 21:00:00",
+      "barometric_direction": "Rising",
+      "barometric_pressure": "102",
+      "wind_speed": "0",
+      "temp_24hourmin": "-4",
+      "relative_humidity": "100",
+      "dew_point": "1.9",
+      "incoming_radiation": "0",
+      "wind_direction": "NE"
+    }
+
+#### Example XML response for [/v1/term/list.xml](http://api.uwdata.ca/v1/term/list.xml):
+
+    <?= '<?xml version="1.0" encoding="UTF-8"?>'."\n" ?>
+    <result>
+      <timestamp>2010-11-09 21:00:00</timestamp>
+      <temp>2</temp>
+      <temp_24hourmax>13.9</temp_24hourmax>
+      <temp_24hourmin>-4</temp_24hourmin>
+      <relative_humidity>100</relative_humidity>
+      <dew_point>1.9</dew_point>
+      <wind_speed>0</wind_speed>
+      <wind_direction>NE</wind_direction>
+      <barometric_pressure>102</barometric_pressure>
+      <barometric_direction>Rising</barometric_direction>
+      <incoming_radiation>0</incoming_radiation>
     </result>
 
 
