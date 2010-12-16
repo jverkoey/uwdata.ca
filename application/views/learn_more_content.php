@@ -12,6 +12,10 @@ Version 1 of the uwdata API covers the following data sets:
 The API is accessed via a set of URLs that are outlined below. Access the UW API via
 `http://api.uwdata.ca/`.
 
+uwdata.ca is now enforcing strict API throttling on all accounts due to ongoing abuse of the API. Requests are now throttled at 10 requests/minute and anything in excess will result in a mandatory cool-down period. This number may go up or down in the future.
+
+Any account found to be abusing this throttling limit three or more times will be banned from the uwdata.ca API for a period of <strong>three months</strong>.
+
 Examples
 --------
 
