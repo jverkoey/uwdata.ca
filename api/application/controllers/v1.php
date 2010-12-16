@@ -19,7 +19,7 @@ class V1_Controller extends Controller {
     }
   }
 
-  private function add_log($action, $param1, $param2, $param3) {
+  private function add_log($return_type, $action, $param1, $param2, $param3) {
     $api_key = $this->input->get('key');
     $db = Database::instance('uwdata_logs');
     $data = array(
@@ -41,6 +41,20 @@ class V1_Controller extends Controller {
       $data['query'] = $query;
     }
     $db->insert('api_logs', $data);
+
+    $results = $db->
+      from('api_logs')->
+      select(array('timestamp'))->
+      where('api_key', $api_key)->
+      where('timestamp > "'.mysql_escape_string(date('Y-m-d H:i:s', time()-60)).'"')->
+      get();
+
+    if (count($results) > 10) {
+      $this->echo_formatted_data(array(
+        'error' => 'You are only allowed 10 requests/minute. Please wait 5 minutes for your access to be enabled again.'
+        ), $return_type);
+      exit;
+    }
   }
 
   /**
@@ -61,7 +75,7 @@ class V1_Controller extends Controller {
       return;
     }
 
-    $this->add_log('faculty', $param1, $param2, $param3);
+    $this->add_log($return_type, 'faculty', $param1, $param2, $param3);
 
     if (preg_match('/^[a-z]+$/i', $param1)) {
       // v1/faculty/<text>
@@ -121,7 +135,7 @@ class V1_Controller extends Controller {
       return;
     }
 
-    $this->add_log('course', $param1, $param2, $param3);
+    $this->add_log($return_type, 'course', $param1, $param2, $param3);
 
     if (preg_match('/^[a-z]+$/i', $param1) && preg_match('/^[0-9]+[a-z]*$/i', $param2)) {
       // v1/course/<faculty acronym>/<course number>
@@ -191,7 +205,7 @@ class V1_Controller extends Controller {
       return;
     }
 
-    $this->add_log('prof', $param1, $param2, $param3);
+    $this->add_log($return_type, 'prof', $param1, $param2, $param3);
 
     if (preg_match('/^[0-9]+$/', $param1)) {
       if ($param2 == 'timeslots') {
@@ -232,7 +246,7 @@ class V1_Controller extends Controller {
       return;
     }
 
-    $this->add_log('term', $param1, $param2, $param3);
+    $this->add_log($return_type, 'term', $param1, $param2, $param3);
 
     if (!$param2) {
       if ($param1 == 'list') {
@@ -263,7 +277,7 @@ class V1_Controller extends Controller {
       return;
     }
 
-    $this->add_log('geo', $param1, $param2, $param3);
+    $this->add_log($return_type, 'geo', $param1, $param2, $param3);
 
     if (preg_match('/^building$/i', $param1)) {
       // v1/geo/building/<text>
@@ -304,7 +318,7 @@ class V1_Controller extends Controller {
       return;
     }
 
-    $this->add_log('weather', $param1, $param2, $param3);
+    $this->add_log($return_type, 'weather', $param1, $param2, $param3);
 
     if (preg_match('/^current$/i', $param1)) {
       // v1/weather/current/
@@ -337,7 +351,7 @@ class V1_Controller extends Controller {
       return;
     }
 
-    $this->add_log('dump', $param1, $param2, $param3);
+    $this->add_log($return_type, 'dump', $param1, $param2, $param3);
 
     if (preg_match('/^courses$/i', $param1)) {
       // v1/dump/courses
