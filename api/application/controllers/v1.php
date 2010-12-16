@@ -9,6 +9,16 @@ class V1_Controller extends Controller {
 
   const ALLOW_PRODUCTION = TRUE;
 
+  public function __construct() {
+    parent::__construct();
+
+    if ($this->input->ip_address() == '67.159.14.85') {
+      echo 'Your access to uwdata has been revoked on account of excessive API usage.<br/>';
+      echo 'Cheers.';
+      exit;
+    }
+  }
+
   private function add_log($action, $param1, $param2, $param3) {
     $api_key = $this->input->get('key');
     $db = Database::instance('uwdata_logs');

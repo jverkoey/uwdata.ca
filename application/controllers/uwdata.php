@@ -7,20 +7,26 @@
  */
 class Uwdata_Controller extends Template_Controller {
 
-	const ALLOW_PRODUCTION = FALSE;
+  const ALLOW_PRODUCTION = FALSE;
 
-	// Set the name of the template to use
-	public $template = 'template';
-	public $auto_render = FALSE;
+  // Set the name of the template to use
+  public $template = 'template';
+  public $auto_render = FALSE;
 
   public function __construct() {
     parent::__construct();
 
     $this->session = Session::instance();
 
-		$this->template->js_foot_files = array();
-		$this->template->css_files = array();
-		$this->template->title = array('uwdata.ca');
+    $this->template->js_foot_files = array();
+    $this->template->css_files = array();
+    $this->template->title = array('uwdata.ca');
+    
+    if ($this->input->ip_address() == '67.159.14.85') {
+      echo 'Your access to uwdata has been revoked on account of excessive API usage.<br/>';
+      echo 'Cheers.';
+      exit;
+    }
   }
 
   protected function add_js_foot_file($file) {
@@ -36,7 +42,7 @@ class Uwdata_Controller extends Template_Controller {
   }
 
   protected function render_markdown_template($content) {
-		require Kohana::find_file('vendor', 'Markdown');
+    require Kohana::find_file('vendor', 'Markdown');
     $this->template->content = $content->render(FALSE, 'Markdown');
 
     $this->template->title = implode(' | ', $this->template->title);
