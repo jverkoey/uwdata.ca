@@ -3,6 +3,7 @@
 date_default_timezone_set('EST');
 
 define('COURSE_CAL_ROOT_URL', 'http://ugradcalendar.uwaterloo.ca/');
+define('GRAD_COURSE_CAL_ROOT_URL', 'http://gradcalendar.uwaterloo.ca/');
 
 $calendar_urls = array(
   '20102011' => 'http://ugradcalendar.uwaterloo.ca',
@@ -16,6 +17,15 @@ $calendar_urls = array(
   '20022003' => 'http://ugradcalendar.uwaterloo.ca/?pageID=10306',
   '20012002' => 'http://ugradcalendar.uwaterloo.ca/?pageID=10307',
   //'20002001' => 'http://ugradcalendar.uwaterloo.ca/?pageID=10308',
+);
+
+//Grad calendars technically come in 3 per term, but the courses are identical
+$grad_calendar_urls = array(
+    '20102011'   => 'http://gradcalendar.uwaterloo.ca',
+    '20092010'   => 'http://gradcalendar.uwaterloo.ca/?ActiveDate=09/01/2009',
+    '20082009'   => 'http://gradcalendar.uwaterloo.ca/?ActiveDate=09/01/2008',
+    '20072008'   => 'http://gradcalendar.uwaterloo.ca/?ActiveDate=09/01/2007',
+    '20062007'   => 'http://gradcalendar.uwaterloo.ca/?ActiveDate=09/01/2006'
 );
 
 
@@ -40,6 +50,7 @@ CREATE TABLE IF NOT EXISTS `courses` (
   `only_ren` tinyint(1) NOT NULL,
   `has_cgr` tinyint(1) NOT NULL,
   `only_cgr` tinyint(1) NOT NULL,
+  `is_grad` tinyint(1) NOT NULL,
   `needs_dept_consent` tinyint(1) NOT NULL,
   `needs_instr_consent` tinyint(1) NOT NULL,
   `avail_fall` tinyint(1) NOT NULL,

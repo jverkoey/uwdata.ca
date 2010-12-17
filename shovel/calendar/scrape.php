@@ -15,13 +15,28 @@ if( sizeof($argv) < 2 ) {
   $calendar_years = $argv[1];
 }
 
-if (!isset($calendar_urls[$calendar_years])) {
-  echo "Unknown calendar years: $calendar_years\n";
-  echo "Try something like 20092010 or 20042005\n";
-  exit;
+if(sizeof($argv) < 3) {
+    $is_grad = false;
+} else {
+    $is_grad = $argv[2] == "grad";
 }
 
-$calendar_url = $calendar_urls[$calendar_years];
+
+if (!$is_grad && isset($calendar_urls[$calendar_years])) {
+    $calendar_url = $calendar_urls[$calendar_years];
+    $rootUrl = COURSE_CAL_ROOT_URL;
+} else if($is_grad && isset($grad_calendar_urls[$calendar_years])) {
+    $rootUrl = GRAD_COURSE_CAL_ROOT_URL;
+    $calendar_url = $grad_calendar_urls[$calendar_years];
+} else {
+    echo "Unknown calendar years: $calendar_years\n";
+    echo "Try something like 20092010 or 20042005";
+    if($is_grad) {
+        echo " or try without grad tag";
+    }
+    echo "\n";
+    exit;
+}
 
 // Let's set the current year...
 $cookie = null;
@@ -77,10 +92,11 @@ if ($is_old_calendar) {
   }
 
 } else {
-  $course_cal_data = fetch_url(COURSE_CAL_ROOT_URL, LONG_CACHE_EXPIRY_TIMESPAN);
+  //$course_cal_data = fetch_url($rootUrl, LONG_CACHE_EXPIRY_TIMESPAN);
+  $course_cal_data = fetch_url($calendar_url, LONG_CACHE_EXPIRY_TIMESPAN);
 
   if (!$course_cal_data) {
-    echo 'Failed to grab the course calendar data from '.COURSE_CAL_ROOT_URL."\n";
+    echo 'Failed to grab the course calendar data from '.$rootUrl."\n";
     exit;
   }
 
@@ -88,7 +104,7 @@ if ($is_old_calendar) {
 
   $calendarYearElm = $course_cal_html->find('span.CalendarYear');
   if (!$calendarYearElm) {
-    echo 'Unable to find the calendar year from '.COURSE_CAL_ROOT_URL."\n";
+    echo 'Unable to find the calendar year from '.$rootUrl."\n";
     exit;
   }
 
@@ -96,7 +112,14 @@ if ($is_old_calendar) {
 
 }
 
-$dbName = 'uwdata_'.str_replace('-', '', $calendarYear);
+if($is_grad) {
+    echo "Grad mode: ENGAGED\n";
+    //Frown face. Will have to be unreliable
+    $dbName = "uwdata_$calendar_years";
+
+} else {
+    $dbName = 'uwdata_'.str_replace(array("-", " "), '', $calendarYear);
+}
 
 echo 'Scraping data from the '.$calendarYear.' calendar year'."\n";
 echo '  db: '.$dbName."\n";
@@ -130,7 +153,7 @@ foreach ($linkElms as $e) {
     if ($is_old_calendar) {
       $links[$e->innertext] = $calendar_url.$e->href;
     } else {
-      $links[$e->innertext] = COURSE_CAL_ROOT_URL.$e->href;
+      $links[$e->innertext] = $rootUrl.$e->href;
     }
   }
 }
@@ -200,13 +223,59 @@ foreach ($links as $title => $url) {
       } // if
     } // foreach
 
+  } else if($is_grad) { 
+    $elm = $html->find('a.Level2Group');
+    foreach ($elm as $e) {
+        $department_html = fetch_url($rootUrl.$e->href);
+        if(!$department_html) {
+          echo 'Failed to get department url from '.$url."\n";
+          continue;
+        }
+
+        $department = str_get_html($department_html);
+        //Grad courses sometimes appear on level three - see classical studies
+        $subelm = $department->find('a.Level2Group, a.Level3Group');
+        foreach($subelm as $f) {
+            if("Courses" == end(preg_split("/\s+/",$f->innertext))) {
+                //Found link to courses
+                preg_match_all('/(.*)\((.+)\)/', $f->innertext, $matches);
+                if(count($matches[2]) == 0) {
+                    //Try another tokenization, links are bad
+                    preg_match_all('/([A-Z]+) Courses/', $f->innertext, $matches);
+
+                    if(count($matches[1]) == 0 ) {
+                        echo "Uh oh. Malformatted department string: {$f->innertext}... skipping\n";
+                        continue;
+                    } else {
+                        echo "No faculty name for {$f->innertext}... using acronym\n";
+                        $departmentAcronym = $matches[1][0];
+                        $departmentName = $departmentAcronym;
+                    }
+                } else {
+                    $departmentAcronym = $matches[2][0];
+                    if(count($matches[1]) == 0) {
+                        echo "No faculty name for: {$f->innertext}... using acronym\n";
+                        $departmentName = $departmentAcronym;
+                    } else {
+                        $departmentName = $matches[1][0];
+                    }
+                }
+
+                $departmentUrl = $f->href;
+                $faculties[$departmentAcronym] = array(
+                    'name' => $departmentName,
+                    'url'  => get_final_url($rootUrl.$departmentUrl)
+                );
+            }
+        }
+    }
   } else {
     $elm = $html->find('a.Level2Group');
 
     $courses_url = null;
     foreach ($elm as $e) {
       if (0 === strpos($e->innertext, 'Courses')) {
-        $courses_url = COURSE_CAL_ROOT_URL.$e->href;
+        $courses_url = $rootUrl.$e->href;
         break;
       }
     }
@@ -228,7 +297,7 @@ foreach ($links as $title => $url) {
     $elm = $html->find('a.Level2Group');
 
     foreach ($elm as $e) {
-      $facultyUrl = COURSE_CAL_ROOT_URL.$e->href;
+      $facultyUrl = $rootUrl.$e->href;
       preg_match_all('/(.+) \((.+)\)/', $e->innertext, $matches);
       $facultyName = $matches[1][0];
       $facultyAcronym = $matches[2][0];
@@ -291,17 +360,26 @@ foreach ($faculties as $acronym => $info) {
       $leftCol = current(current($tr)->find('td[align=left]'));
       $anchor = current($leftCol->find('a'))->name;
       $data = strip_tags($leftCol->innertext);
-      if (!preg_match('/([a-z]+) ([a-z0-9]+) ([a-z,]+) ([0-9\.]+)/i', $data, $matches)) {
-        echo "Unknown course header data\n";
-        echo $data;
-        exit;
+      if (!$is_grad && preg_match('/([a-z]+) ([a-z0-9]+) ([a-z,]+) ([0-9\.]+)/i', $data, $matches)) {
+          $course['faculty_acronym'] = $matches[1];
+          $course['course_number'] = $matches[2];
+          $course['offerings'] = $matches[3];
+          $course['credit_value'] = $matches[4];
+          $course['src_url'] = $info['url'].'#'.$anchor;
+      } else if($is_grad && preg_match('/([A-Z]+) ([A-z0-9]+) (.*) \(([0-9\.]+)\) ([A-Z,]+)/i', $data, $matches)) {
+          $course['faculty_acronym'] = $matches[1];
+          $course['course_number'] = $matches[2];
+          $course['title'] = $matches[3];
+          $course['credit_value'] = $matches[4];
+          $course['offerings'] = $matches[5];
+          $course['src_url'] = $info['url'].'#'.$anchor;
+      } else {
+          echo "Unknown course header data\n";
+          echo $data;
+          exit;
       }
 
-      $course['faculty_acronym'] = $matches[1];
-      $course['course_number'] = $matches[2];
-      $course['offerings'] = $matches[3];
-      $course['credit_value'] = $matches[4];
-      $course['src_url'] = $info['url'].'#'.$anchor;
+      $course['is_grad'] = $is_grad;
 
       $offerings = explode(',', $course['offerings']);
       foreach ($offerings as $offering) {
@@ -325,9 +403,18 @@ foreach ($faculties as $acronym => $info) {
       next($tr);
 
       // Title
-      $data = current(current($tr)->find('td'))->innertext;
-      $course['title'] = strip_tags($data);
-      next($tr);
+      if(!$is_grad) {
+          $data = current(current($tr)->find('td'))->innertext;
+          $course['title'] = strip_tags($data);
+          next($tr);
+      } else {
+          $data = strip_tags(current(current($tr)->find('td'))->innertext);
+          if (0 === strpos($data, '(Cross-listed')) {
+            $course['crosslist_desc'] = $data;
+            next($tr);
+          }
+      }
+
 
       // Description
       $data = current(current($tr)->find('td'))->innertext;
