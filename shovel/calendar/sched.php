@@ -10,14 +10,32 @@ include_once COMMON_PATH.'Database.class.php';
 echo 'Scraping schedule...'."\n";
 
 define('FAST_CACHE_EXPIRY_TIMESPAN', 60*60);
+define('GRAD_ROOT_URL', 'http://www.adm.uwaterloo.ca/infocour/CIR/SA/grad.html');
+define('UNDERGRAD_ROOT_URL', 'http://www.adm.uwaterloo.ca/infocour/CIR/SA/under.html');
+define('CGI_URL', 'http://www.adm.uwaterloo.ca/cgi-bin/cgiwrap/infocour/salook.pl');
 
+if(sizeof($argv) < 2) {
+    $is_grad  =  false;
+} else {
+    $is_grad = $argv[1] == "grad";
+}
+
+if($is_grad) {
+    $root_url = GRAD_ROOT_URL;
+    $salook_level = 'grad';
+    echo "Running for graduate schedules\n";
+} else {
+    $root_url = UNDERGRAD_ROOT_URL;
+    $salook_level = 'under';
+    echo "Running for undergraduate schedules\n";
+}
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // Now that we know which calendar year we're working with, let's ensure that the tables exist.
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 $db = new Database(DB_HOST, DB_USER, DB_PASS, 'uwdata_schedule');
 $db->connect();
 
-$index_data = fetch_url('http://www.adm.uwaterloo.ca/infocour/CIR/SA/under.html', FAST_CACHE_EXPIRY_TIMESPAN);
+$index_data = fetch_url($root_url, FAST_CACHE_EXPIRY_TIMESPAN);
 
 if (!$index_data) {
   echo 'Failed to grab the schedule page.'."\n";
@@ -83,7 +101,7 @@ function munge_military_dates($format, &$object) {
     $object['days'] = $match[5];
     return true;
 
-  } else if ($format == '12:00-12:00') {  
+  } else if (strpos($format, '12:00-12:00') === 0) {  
     // Do nothing.
     return true;
 
@@ -107,9 +125,10 @@ if (preg_match_all('/<OPTION VALUE="([A-Z]+)"(?: SELECTED)?>[A-Z]+/', $index_dat
   foreach ($faculty_match[1] as $faculty) {
   foreach ($terms as $term_id) {
     echo $faculty.": ".$term_id."\n";
-    $data = fetch_url('http://www.adm.uwaterloo.ca/cgi-bin/cgiwrap/infocour/salook.pl', FAST_CACHE_EXPIRY_TIMESPAN, array(
+    $data = fetch_url(CGI_URL, FAST_CACHE_EXPIRY_TIMESPAN, array(
       'sess' => $term_id,
-      'subject' => $faculty
+      'subject' => $faculty,
+      'level' => $salook_level
     ));
 
     if (strpos($data, 'Sorry, but your query had no matches') !== FALSE) {
@@ -242,7 +261,8 @@ if (preg_match_all('/<OPTION VALUE="([A-Z]+)"(?: SELECTED)?>[A-Z]+/', $index_dat
         unset($class['reserves']);
       }
 
-      $class['term'] = $term_id;
+      $class['term']    = $term_id;
+      $class['is_grad'] = $is_grad;
 
       $escaped_values = array();
       foreach (array_values($class) as $value) {
