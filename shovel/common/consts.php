@@ -8,14 +8,14 @@ define('GRAD_COURSE_CAL_ROOT_URL', 'http://gradcalendar.uwaterloo.ca/');
 $calendar_urls = array(
   '20102011' => 'http://ugradcalendar.uwaterloo.ca',
   '20092010' => 'http://ugradcalendar.uwaterloo.ca/?ActiveDate=9/1/2009',
-  '20082009' => 'http://ugradcalendar.uwaterloo.ca/?pageID=10300',
-  '20072008' => 'http://ugradcalendar.uwaterloo.ca/?pageID=10301',
-  '20062007' => 'http://ugradcalendar.uwaterloo.ca/?pageID=10302',
-  '20052006' => 'http://ugradcalendar.uwaterloo.ca/?pageID=10303',
-  '20042005' => 'http://ugradcalendar.uwaterloo.ca/?pageID=10304',
-  '20032004' => 'http://ugradcalendar.uwaterloo.ca/?pageID=10305',
-  '20022003' => 'http://ugradcalendar.uwaterloo.ca/?pageID=10306',
-  '20012002' => 'http://ugradcalendar.uwaterloo.ca/?pageID=10307',
+  '20082009' => 'http://ugradcalendar.uwaterloo.ca/?ActiveDate=9/1/2008',
+  '20072008' => 'http://ugradcalendar.uwaterloo.ca/?ActiveDate=9/1/2007',
+  '20062007' => 'http://www.ucalendar.uwaterloo.ca/0607',
+  '20052006' => 'http://www.ucalendar.uwaterloo.ca/0506',
+  '20042005' => 'http://www.ucalendar.uwaterloo.ca/0405',
+  '20032004' => 'http://www.ucalendar.uwaterloo.ca/0304',
+  '20022003' => 'http://www.ucalendar.uwaterloo.ca/0203',
+  '20012002' => 'http://www.ucalendar.uwaterloo.ca/0102'
   //'20002001' => 'http://ugradcalendar.uwaterloo.ca/?pageID=10308',
 );
 

@@ -55,14 +55,19 @@ if (preg_match('/Set-Cookie: ([a-z0-9_\.]+)=([a-z0-9]+)/i', $output, $match)) {
   $cookie = $match[1].'='.$match[2];
 } else {
   echo "No cookie found.\n";
-  exit;
+  $no_cookie = true;
 }
 
 $is_old_calendar = false;
-$calendar_url = get_redirect_url($calendar_url);
-if (0 === strpos($calendar_url, 'http://www.ucalendar')) {
+$redirect_calendar_url = get_redirect_url($calendar_url);
+if (0 === strpos($redirect_calendar_url, 'http://www.ucalendar')) {
   // This is an old calendar that links straight to the ucalendar data.
   $is_old_calendar = true;
+  $calendar_url = $redirect_calendar_url;
+  echo "This is an old calendar\n";
+} else if($no_cookie) {
+    echo "No cookie found and using a new calendar\n";
+    exit;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -92,8 +97,7 @@ if ($is_old_calendar) {
   }
 
 } else {
-  //$course_cal_data = fetch_url($rootUrl, LONG_CACHE_EXPIRY_TIMESPAN);
-  $course_cal_data = fetch_url($calendar_url, LONG_CACHE_EXPIRY_TIMESPAN);
+  $course_cal_data = fetch_url($rootUrl, LONG_CACHE_EXPIRY_TIMESPAN);
 
   if (!$course_cal_data) {
     echo 'Failed to grab the course calendar data from '.$rootUrl."\n";
