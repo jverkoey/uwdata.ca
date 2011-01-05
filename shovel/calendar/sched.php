@@ -86,7 +86,7 @@ $col_keys = array(
 );
 
 function munge_military_dates($format, &$object) {
-  if (preg_match('/([0-9]+):([0-9]+)-([0-9]+):([0-9]+)([A-Z]+)/', $format, $match)) {
+  if (preg_match('/([0-9]+):([0-9]+)-([0-9]+):([0-9]+)([A-Za-z]+)/', $format, $match)) {
     $military_start = intval($match[1].$match[2]);
     $military_end = intval($match[3].$match[4]);
     if ($military_end < $military_start) {
