@@ -50,8 +50,8 @@ class V1_Controller extends Controller {
       get();
 
     // HACKHACKHACK: Allow higher throughput for the demo API key.
-    if ($api_key == '6a43bfb883aeeff0d72c895e09425538' && count($results) > 120
-        || count($results) > 10) {
+    if ($api_key != '6a43bfb883aeeff0d72c895e09425538' && count($results) > 10
+        || count($results) > 120) {
       $this->echo_formatted_data(array(
         'error' => 'You are only allowed 10 requests/minute. Please wait 5 minutes for your access to be enabled again.'
         ), $return_type);
