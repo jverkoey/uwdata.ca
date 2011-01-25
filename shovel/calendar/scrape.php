@@ -489,7 +489,7 @@ foreach ($faculties as $acronym => $info) {
 }
 
 // Prune dead courses.
-$results = $db->query('SELECT * FROM courses;');
+$results = $db->query('SELECT * FROM courses WHERE is_grad='.($is_grad ? 1 : 0).';');
 while ($row = mysql_fetch_assoc($results)) {
   if (!isset($courses[$row['cid']])) {
     $db->query('DELETE FROM courses WHERE cid = "'.mysql_escape_string($row['cid']).'";');
