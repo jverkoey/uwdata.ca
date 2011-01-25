@@ -49,7 +49,9 @@ class V1_Controller extends Controller {
       where('timestamp > "'.mysql_escape_string(date('Y-m-d H:i:s', time()-60)).'"')->
       get();
 
-    if (count($results) > 10) {
+    // HACKHACKHACK: Allow higher throughput for the demo API key.
+    if ($api_key == '6a43bfb883aeeff0d72c895e09425538' && count($results) > 120
+        || count($results) > 10) {
       $this->echo_formatted_data(array(
         'error' => 'You are only allowed 10 requests/minute. Please wait 5 minutes for your access to be enabled again.'
         ), $return_type);
