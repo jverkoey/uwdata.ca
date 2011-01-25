@@ -324,13 +324,15 @@ foreach ($links as $title => $url) {
 // Great, we have all of the faculties. Now let's cross reference it with the existing db.
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
+/*
+// Don't prune anymore.
 $results = $db->query('SELECT * FROM faculties;');
 while ($row = mysql_fetch_assoc($results)) {
   // Check if this faculty no longer exists.
   if (!isset($faculties[$row['acronym']])) {
     $db->query('DELETE FROM faculties WHERE acronym = "'.mysql_escape_string($row['acronym']).'";');
   }
-}
+}*/
 
 foreach ($faculties as $acronym => $info) {
   $sql = 'INSERT INTO faculties(acronym, name) VALUES("'.$acronym.'", "'.$info['name'].'") ON DUPLICATE KEY UPDATE name="'.$info['name'].'";';
