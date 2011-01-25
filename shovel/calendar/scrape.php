@@ -272,6 +272,10 @@ foreach ($links as $title => $url) {
                 );
             }
         }
+        
+        unset($department_html);
+        $department->__destruct();
+        unset($department);
     }
   } else {
     $elm = $html->find('a.Level2Group');
